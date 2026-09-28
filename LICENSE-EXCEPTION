@@ -1,0 +1,89 @@
+ConsolX Plugin Exception
+Version 1.0
+
+Copyright (C) 2026 Pierre Rué and the ConsolX contributors
+
+This exception is an additional permission under section 7 of the
+GNU General Public License, version 3 ("GPLv3"). ConsolX is licensed
+under the GPLv3 only. This exception applies to the GPLv3 and to no
+other version of the GNU General Public License.
+
+
+0. Definitions
+
+"ConsolX" means the program distributed under that name by its
+copyright holders, in source code or object code form, and any
+modified version of it that retains this exception.
+
+"Plugin API" means the public interface that ConsolX provides for
+plugins, consisting of:
+
+  a) the types, interfaces and constants published in the
+     @consolx/plugin-api package; and
+
+  b) the messages exchanged between ConsolX and its plugin host, as
+     described in the official ConsolX plugin documentation.
+
+Internal modules of ConsolX, private communication channels between
+its processes, and the API exposed to the rendering process by the
+preload script are not part of the Plugin API.
+
+"Plugin" means a work designed to be loaded and run by the ConsolX
+plugin host, or declared through a ConsolX plugin manifest, that
+interacts with ConsolX exclusively through the Plugin API. Themes,
+terminal color schemes and other resources contributed through a
+plugin manifest are Plugins.
+
+"ConsolX Core Code" means any part of ConsolX other than the
+@consolx/plugin-api package.
+
+
+1. Grant of Additional Permission
+
+You have permission to convey a Plugin under terms of your choice,
+including proprietary terms, even if the Plugin might otherwise be
+considered a work based on ConsolX, provided that the Plugin:
+
+  a) interacts with ConsolX exclusively through the Plugin API; and
+
+  b) does not contain any ConsolX Core Code, whether copied verbatim
+     or modified.
+
+You also have permission to convey ConsolX together with one or more
+Plugins, whatever their terms. In that case the GPLv3 continues to
+apply to ConsolX, but does not apply to those Plugins by reason of
+being conveyed with ConsolX.
+
+
+2. Limits of this Exception
+
+This exception does not permit you to convey ConsolX Core Code, or
+any modified version of it, under terms other than the GPLv3.
+
+A work that does not meet both conditions of section 1 is not covered
+by this exception. To the extent that such a work is based on
+ConsolX, it remains subject to the GPLv3.
+
+
+3. The Plugin API Package
+
+The @consolx/plugin-api package is licensed separately under the MIT
+License. Using that package does not by itself subject a Plugin to
+the GPLv3.
+
+
+4. Modified Versions of ConsolX
+
+If you modify ConsolX, you may extend this exception to your modified
+version, but you are not obliged to do so. As permitted by section 7
+of the GPLv3, you may remove this exception from your copy. If you do
+so, remove this file and every reference to it from your version.
+
+
+5. Name and Trademarks
+
+In accordance with section 7(e) of the GPLv3, neither the GPLv3 nor
+this exception grants any right to use the name "ConsolX", or any
+associated logo, trade name or trademark, except as needed to
+describe the origin of the work and to reproduce the notices it
+contains.

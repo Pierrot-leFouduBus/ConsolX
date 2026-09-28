@@ -1,0 +1,23 @@
+ConsolX
+Copyright (C) 2026 Pierre Rué and the ConsolX contributors
+
+ConsolX is free software: you can redistribute it and/or modify it
+under the terms of version 3 of the GNU General Public License as
+published by the Free Software Foundation, with the additional
+permission set out in the file LICENSE-EXCEPTION
+("ConsolX Plugin Exception").
+
+ConsolX is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ConsolX, in the file LICENSE. If not, see
+<https://www.gnu.org/licenses/>.
+
+The @consolx/plugin-api package (packages/plugin-api) is licensed
+under the MIT License. See packages/plugin-api/LICENSE.
+
+Third-party components included in ConsolX remain under their own
+licenses, and their copyright notices are preserved.
