@@ -169,3 +169,23 @@ build(deps): update Electron to 44.5.0
   ```
 
 - The pull request title follows the same format as a commit message.
+
+## Releasing a version (maintainers)
+
+Pushing a version tag starts the Release workflow: it builds the Windows installer and publishes it
+as a GitHub Release. Installed apps find the new version at their next start, download it, and
+install it when they quit.
+
+```bash
+# 1. Set the new version of the app
+npm version 0.2.0 --workspace @consolx/desktop --no-git-tag-version
+
+# 2. Commit it
+git commit -s -am "chore(release): 0.2.0"
+
+# 3. Tag the commit and push both
+git tag v0.2.0
+git push origin main v0.2.0
+```
+
+The tag must match the app version, otherwise the workflow stops before publishing.

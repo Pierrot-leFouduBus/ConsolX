@@ -13,6 +13,7 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "dist": "electron-vite build && electron-builder --publish never",
+    "release:github": "electron-vite build && electron-builder --publish always",
     "typecheck:node": "tsc --noEmit --composite false -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit --composite false -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web"
@@ -33,6 +34,7 @@
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "node-pty": "^1.1.0"
   }
 }

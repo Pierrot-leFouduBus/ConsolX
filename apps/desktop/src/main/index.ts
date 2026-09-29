@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { registerIpcHandlers } from './ipc'
 import { getRendererSource } from './renderer-source'
 import { TerminalManager } from './terminal-manager'
+import { startAutoUpdate } from './updater'
 
 const terminals = new TerminalManager()
 registerIpcHandlers(terminals)
@@ -46,6 +47,7 @@ function createWindow(): void {
 
 void app.whenReady().then(() => {
   createWindow()
+  startAutoUpdate()
 
   // macOS: re-create a window when the dock icon is clicked and none is open.
   app.on('activate', () => {

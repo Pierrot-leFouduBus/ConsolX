@@ -3,6 +3,9 @@
 appId: io.github.pierrot-lefoudubus.consolx
 productName: ConsolX
 copyright: Copyright © 2026 Pierre Rué and the ConsolX contributors
+# Package name inside the installed app; also names the update cache folder (consolx-updater).
+extraMetadata:
+  name: consolx
 
 directories:
   # Icons and other installer resources.
@@ -42,3 +45,11 @@ nsis:
   # Uninstalling keeps the user's settings.
   deleteAppDataOnUninstall: false
   artifactName: ${productName}-Setup-${version}.${ext}
+
+# Stable channel: installers are published as GitHub Releases, where installed apps
+# look for updates. Releases are public as soon as they are built.
+publish:
+  provider: github
+  owner: Pierrot-leFouduBus
+  repo: ConsolX
+  releaseType: release
