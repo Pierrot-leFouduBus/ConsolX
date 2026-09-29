@@ -1,0 +1,14 @@
+# Text files use LF line endings, in the repository and on disk.
+* text=auto eol=lf
+
+# Windows scripts need CRLF line endings.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files: never touch their content.
+*.ico binary
+*.png binary
+*.jpg binary
+*.ttf binary
+*.woff2 binary

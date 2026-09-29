@@ -1,0 +1,22 @@
+/* Base styles, using the ConsolX brand colors. */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #15171c;
+  color: #f3f0e8;
+  font-family: system-ui, sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.app h1 {
+  margin: 0 0 8px;
+  color: #5fd3a6;
+}
