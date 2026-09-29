@@ -1,0 +1,23 @@
+{
+  "name": "@consolx/plugin-api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Public types and interfaces for ConsolX plugins.",
+  "license": "MIT",
+  "author": "Pierre Rué",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pierrot-leFouduBus/ConsolX.git",
+    "directory": "packages/plugin-api"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}
