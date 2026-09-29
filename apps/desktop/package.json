@@ -14,6 +14,8 @@
     "preview": "electron-vite preview",
     "dist": "electron-vite build && electron-builder --publish never",
     "release:github": "electron-vite build && electron-builder --publish always",
+    "release:local": "node scripts/release-local.mjs",
+    "serve:local": "node scripts/serve-local.mjs",
     "typecheck:node": "tsc --noEmit --composite false -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit --composite false -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web"

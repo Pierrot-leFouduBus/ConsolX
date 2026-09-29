@@ -14,7 +14,7 @@ function createWindow(): void {
     width: 900,
     height: 600,
     show: false,
-    title: 'ConsolX',
+    title: app.getName(),
     backgroundColor: '#15171C',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

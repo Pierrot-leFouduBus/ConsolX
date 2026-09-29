@@ -1,7 +1,7 @@
 // Names of the IPC channels between the main process and the preload script.
 export const IpcChannel = {
   // UI -> main
-  getVersion: 'app:get-version',
+  getAppInfo: 'app:get-info',
   terminalCreate: 'terminal:create',
   terminalWrite: 'terminal:write',
   terminalResize: 'terminal:resize',

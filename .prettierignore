@@ -2,6 +2,8 @@
 out/
 dist/
 release/
+release-dev/
+.dev-updates/
 coverage/
 
 # Managed by npm

@@ -20,6 +20,8 @@
     "dev": "npm run dev --workspace @consolx/desktop",
     "build": "npm run build --workspaces --if-present",
     "dist": "npm run dist --workspace @consolx/desktop",
+    "release:local": "npm run release:local --workspace @consolx/desktop",
+    "serve:local": "npm run serve:local --workspace @consolx/desktop",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",

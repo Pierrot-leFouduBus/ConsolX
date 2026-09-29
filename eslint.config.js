@@ -8,15 +8,20 @@ import tseslint from 'typescript-eslint'
 
 export default defineConfig(
   // Generated files are never linted.
-  globalIgnores(['**/out/', '**/dist/', '**/release/', '**/coverage/']),
+  globalIgnores(['**/out/', '**/dist/', '**/release/', '**/release-dev/', '**/coverage/']),
 
   // Base rules for JavaScript and TypeScript.
   js.configs.recommended,
   tseslint.configs.recommended,
 
-  // Config files, main process and preload run in Node.js.
+  // Config files, scripts, main process and preload run in Node.js.
   {
-    files: ['*.{js,ts}', 'apps/desktop/*.ts', 'apps/desktop/src/{main,preload}/**/*.ts'],
+    files: [
+      '*.{js,ts}',
+      'apps/desktop/*.ts',
+      'apps/desktop/scripts/**/*.mjs',
+      'apps/desktop/src/{main,preload}/**/*.ts'
+    ],
     languageOptions: { globals: globals.node }
   },
 

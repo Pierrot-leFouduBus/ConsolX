@@ -5,7 +5,7 @@ import type { ConsolxApi, Unsubscribe } from '../shared/consolx-api'
 import { IpcChannel } from '../shared/ipc-channels'
 
 const api: ConsolxApi = {
-  getVersion: () => ipcRenderer.invoke(IpcChannel.getVersion),
+  getAppInfo: () => ipcRenderer.invoke(IpcChannel.getAppInfo),
   terminal: {
     create: (cols, rows) => ipcRenderer.invoke(IpcChannel.terminalCreate, cols, rows),
     write: (id, data) => ipcRenderer.send(IpcChannel.terminalWrite, id, data),

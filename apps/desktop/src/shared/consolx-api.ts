@@ -19,8 +19,14 @@ export interface TerminalApi {
   onExit(listener: (id: number, exitCode: number) => void): Unsubscribe
 }
 
+export interface AppInfo {
+  // "ConsolX", or "ConsolX Dev" for the development variant.
+  name: string
+  // For example "0.1.0", or "0.2.0-dev.1".
+  version: string
+}
+
 export interface ConsolxApi {
-  // Version of the app, for example "0.1.0".
-  getVersion(): Promise<string>
+  getAppInfo(): Promise<AppInfo>
   terminal: TerminalApi
 }

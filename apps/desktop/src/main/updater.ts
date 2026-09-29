@@ -12,6 +12,8 @@ export function startAutoUpdate(): void {
   if (!app.isPackaged) return
 
   autoUpdater.logger = fileLogger(join(app.getPath('logs'), 'updater.log'))
+  // ConsolX ships full installers only; never accept a web installer.
+  autoUpdater.disableWebInstaller = true
   // Errors are already written to the log by electron-updater.
   autoUpdater.checkForUpdates().catch(() => {})
 }

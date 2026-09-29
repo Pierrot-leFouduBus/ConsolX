@@ -5,7 +5,7 @@ import { IpcChannel } from '../shared/ipc-channels'
 import type { TerminalManager } from './terminal-manager'
 
 export function registerIpcHandlers(terminals: TerminalManager): void {
-  ipcMain.handle(IpcChannel.getVersion, () => app.getVersion())
+  ipcMain.handle(IpcChannel.getAppInfo, () => ({ name: app.getName(), version: app.getVersion() }))
 
   ipcMain.handle(IpcChannel.terminalCreate, (event, cols: unknown, rows: unknown) => {
     if (!isTerminalSize(cols) || !isTerminalSize(rows)) throw new Error('Invalid terminal size')

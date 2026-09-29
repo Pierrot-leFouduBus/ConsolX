@@ -5,7 +5,11 @@ node_modules/
 out/
 dist/
 release/
+release-dev/
 *.tsbuildinfo
+
+# Local update server for ConsolX Dev (npm run release:local)
+.dev-updates/
 
 # Test output
 coverage/
