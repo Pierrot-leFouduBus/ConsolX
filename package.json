@@ -19,6 +19,7 @@
   "scripts": {
     "dev": "npm run dev --workspace @consolx/desktop",
     "build": "npm run build --workspaces --if-present",
+    "dist": "npm run dist --workspace @consolx/desktop",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -39,6 +40,7 @@
   },
   "allowScripts": {
     "node-pty": true,
-    "esbuild": true
+    "esbuild": true,
+    "electron-winstaller": false
   }
 }

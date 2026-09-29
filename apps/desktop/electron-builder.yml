@@ -1,0 +1,44 @@
+# Packaging configuration: builds the Windows installer with electron-builder.
+# Never change appId once a version is released: Windows uses it to recognize the app.
+appId: io.github.pierrot-lefoudubus.consolx
+productName: ConsolX
+copyright: Copyright © 2026 Pierre Rué and the ConsolX contributors
+
+directories:
+  # Icons and other installer resources.
+  buildResources: build
+  # Where installers are written.
+  output: release
+
+# Only the built app goes into the package; production dependencies are added automatically.
+files:
+  - out/**
+  # node-pty: keep what runs, drop sources, debug symbols and other platforms.
+  - '!**/node_modules/node-pty/{src,deps,third_party,scripts,typings}/**'
+  - '!**/node_modules/node-pty/prebuilds/{darwin-*,win32-arm64}/**'
+  - '!**/node_modules/node-pty/**/*.pdb'
+
+# node-pty loads native files and starts helper programs: keep it outside the archive.
+asarUnpack:
+  - '**/node_modules/node-pty/**'
+
+# node-pty ships prebuilt binaries using Node-API, which work with any Electron version,
+# so there is nothing to rebuild.
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch: x64
+
+nsis:
+  # Classic installer wizard: license, then the installation folder.
+  oneClick: false
+  license: ../../LICENSE
+  allowToChangeInstallationDirectory: true
+  # Install for the current user only, in their profile: no administrator rights (UAC).
+  perMachine: false
+  allowElevation: false
+  # Uninstalling keeps the user's settings.
+  deleteAppDataOnUninstall: false
+  artifactName: ${productName}-Setup-${version}.${ext}
