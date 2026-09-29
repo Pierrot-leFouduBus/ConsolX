@@ -1,7 +1,12 @@
 // Main process: creates the window and manages the app lifecycle.
 import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
+import { registerIpcHandlers } from './ipc'
 import { getRendererSource } from './renderer-source'
+import { TerminalManager } from './terminal-manager'
+
+const terminals = new TerminalManager()
+registerIpcHandlers(terminals)
 
 function createWindow(): void {
   const window = new BrowserWindow({
@@ -25,6 +30,12 @@ function createWindow(): void {
   // Never open new windows from the UI.
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
+  // There is a single window for now: when its page reloads or closes, stop all shells.
+  window.webContents.on('did-start-navigation', (details) => {
+    if (details.isMainFrame && !details.isSameDocument) terminals.killAll()
+  })
+  window.on('closed', () => terminals.killAll())
+
   const source = getRendererSource(app.isPackaged, process.env['ELECTRON_RENDERER_URL'], __dirname)
   if (source.type === 'url') {
     void window.loadURL(source.url)
@@ -46,3 +57,6 @@ void app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
+
+// Never leave shells running after the app quits.
+app.on('will-quit', () => terminals.killAll())

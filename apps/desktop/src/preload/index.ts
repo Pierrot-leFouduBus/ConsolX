@@ -1,13 +1,29 @@
 // Preload script: runs before the UI and exposes a small, controlled API to it.
-import { contextBridge } from 'electron'
-import type { ConsolxApi } from '../shared/consolx-api'
+// The UI never gets ipcRenderer itself, only the functions below.
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import type { ConsolxApi, Unsubscribe } from '../shared/consolx-api'
+import { IpcChannel } from '../shared/ipc-channels'
 
 const api: ConsolxApi = {
-  versions: {
-    electron: process.versions.electron,
-    chrome: process.versions.chrome,
-    node: process.versions.node
+  getVersion: () => ipcRenderer.invoke(IpcChannel.getVersion),
+  terminal: {
+    create: (cols, rows) => ipcRenderer.invoke(IpcChannel.terminalCreate, cols, rows),
+    write: (id, data) => ipcRenderer.send(IpcChannel.terminalWrite, id, data),
+    resize: (id, cols, rows) => ipcRenderer.send(IpcChannel.terminalResize, id, cols, rows),
+    kill: (id) => ipcRenderer.send(IpcChannel.terminalKill, id),
+    onData: (listener) => subscribe(IpcChannel.terminalData, listener),
+    onExit: (listener) => subscribe(IpcChannel.terminalExit, listener)
   }
+}
+
+// Listens to messages from the main process, without passing the IPC event to the UI.
+function subscribe<Args extends unknown[]>(
+  channel: string,
+  listener: (...args: Args) => void
+): Unsubscribe {
+  const handler = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...(args as Args))
+  ipcRenderer.on(channel, handler)
+  return () => ipcRenderer.removeListener(channel, handler)
 }
 
 contextBridge.exposeInMainWorld('consolx', api)
