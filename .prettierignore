@@ -1,0 +1,8 @@
+# Generated files
+out/
+dist/
+release/
+coverage/
+
+# Managed by npm
+package-lock.json

@@ -1,6 +1,7 @@
 // Main process: creates the window and manages the app lifecycle.
 import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
+import { getRendererSource } from './renderer-source'
 
 function createWindow(): void {
   const window = new BrowserWindow({
@@ -24,12 +25,11 @@ function createWindow(): void {
   // Never open new windows from the UI.
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
-  // In dev, electron-vite serves the UI with hot reload; otherwise load the built files.
-  const devServerUrl = process.env['ELECTRON_RENDERER_URL']
-  if (!app.isPackaged && devServerUrl) {
-    void window.loadURL(devServerUrl)
+  const source = getRendererSource(app.isPackaged, process.env['ELECTRON_RENDERER_URL'], __dirname)
+  if (source.type === 'url') {
+    void window.loadURL(source.url)
   } else {
-    void window.loadFile(join(__dirname, '../renderer/index.html'))
+    void window.loadFile(source.path)
   }
 }
 

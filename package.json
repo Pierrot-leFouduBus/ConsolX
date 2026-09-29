@@ -4,6 +4,7 @@
   "description": "A customizable terminal that brings several shells together in one window.",
   "license": "GPL-3.0-only",
   "author": "Pierre Rué",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/Pierrot-leFouduBus/ConsolX.git"
@@ -18,6 +19,22 @@
   "scripts": {
     "dev": "npm run dev --workspace @consolx/desktop",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.2"
   }
 }
