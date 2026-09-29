@@ -47,8 +47,26 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-      # Builds the installer and latest.yml, then uploads them to the GitHub Release.
-      - name: Build and publish the installer
+      # Create the release as a draft first, so that electron-builder uploads all its files
+      # to it. Left to itself, electron-builder can create the same release twice.
+      - name: Create a draft release
+        shell: bash
+        run: |
+          gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 ||
+            gh release create "$GITHUB_REF_NAME" --draft --verify-tag \
+              --title "${GITHUB_REF_NAME#v}" --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Builds the installer and latest.yml, then uploads them to the draft release.
+      - name: Build and upload the installer
         run: npm run release:github --workspace @consolx/desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Make the release public: installed apps now find the new version.
+      - name: Publish the release
+        shell: bash
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

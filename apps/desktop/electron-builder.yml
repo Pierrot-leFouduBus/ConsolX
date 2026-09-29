@@ -47,9 +47,10 @@ nsis:
   artifactName: ${productName}-Setup-${version}.${ext}
 
 # Stable channel: installers are published as GitHub Releases, where installed apps
-# look for updates. Releases are public as soon as they are built.
+# look for updates. The Release workflow creates each release as a draft, electron-builder
+# uploads the files to it, then the workflow makes it public.
 publish:
   provider: github
   owner: Pierrot-leFouduBus
   repo: ConsolX
-  releaseType: release
+  releaseType: draft
