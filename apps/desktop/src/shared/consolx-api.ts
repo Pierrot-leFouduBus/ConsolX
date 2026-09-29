@@ -26,7 +26,27 @@ export interface AppInfo {
   version: string
 }
 
+// Where the app is with updates. The main process owns this state and sends every change.
+export type UpdateState =
+  // Nothing to show: no update, not checked yet, or running in development.
+  | { status: 'idle' }
+  // A newer version exists. `failed` is set when its download has failed.
+  | { status: 'available'; version: string; failed?: boolean }
+  | { status: 'downloading'; version: string; percent: number }
+  // Downloaded: installs on restart, or when the app quits.
+  | { status: 'ready'; version: string }
+
+export interface UpdatesApi {
+  getState(): Promise<UpdateState>
+  // Downloads the available update in the background.
+  download(): void
+  // Quits, installs the downloaded update and starts the new version.
+  install(): void
+  onState(listener: (state: UpdateState) => void): Unsubscribe
+}
+
 export interface ConsolxApi {
   getAppInfo(): Promise<AppInfo>
   terminal: TerminalApi
+  updates: UpdatesApi
 }

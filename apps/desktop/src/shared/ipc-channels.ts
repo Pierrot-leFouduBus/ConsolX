@@ -6,7 +6,11 @@ export const IpcChannel = {
   terminalWrite: 'terminal:write',
   terminalResize: 'terminal:resize',
   terminalKill: 'terminal:kill',
+  updateGetState: 'update:get-state',
+  updateDownload: 'update:download',
+  updateInstall: 'update:install',
   // main -> UI
   terminalData: 'terminal:data',
-  terminalExit: 'terminal:exit'
+  terminalExit: 'terminal:exit',
+  updateState: 'update:state'
 } as const

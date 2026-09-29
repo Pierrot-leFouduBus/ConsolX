@@ -13,6 +13,12 @@ const api: ConsolxApi = {
     kill: (id) => ipcRenderer.send(IpcChannel.terminalKill, id),
     onData: (listener) => subscribe(IpcChannel.terminalData, listener),
     onExit: (listener) => subscribe(IpcChannel.terminalExit, listener)
+  },
+  updates: {
+    getState: () => ipcRenderer.invoke(IpcChannel.updateGetState),
+    download: () => ipcRenderer.send(IpcChannel.updateDownload),
+    install: () => ipcRenderer.send(IpcChannel.updateInstall),
+    onState: (listener) => subscribe(IpcChannel.updateState, listener)
   }
 }
 
