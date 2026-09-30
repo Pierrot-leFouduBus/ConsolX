@@ -1,6 +1,8 @@
 // Shape of the API that the preload script exposes to the UI as `window.consolx`.
 // Shared by the preload (which builds it) and the renderer (which uses it).
 
+import type { PrototypeApi } from './prototype'
+
 // Stops listening to an event.
 export type Unsubscribe = () => void
 
@@ -49,4 +51,6 @@ export interface ConsolxApi {
   getAppInfo(): Promise<AppInfo>
   terminal: TerminalApi
   updates: UpdatesApi
+  // PROTOTYPE: transparency tests.
+  proto: PrototypeApi
 }

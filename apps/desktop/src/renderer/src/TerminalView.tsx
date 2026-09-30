@@ -4,8 +4,20 @@ import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 
-export function TerminalView() {
+// PROTOTYPE: backgroundAlpha sets the opacity of the terminal background (0 to 1).
+interface TerminalViewProps {
+  backgroundAlpha: number
+}
+
+const theme = (alpha: number) => ({
+  background: `rgba(21, 23, 28, ${alpha})`,
+  foreground: '#f3f0e8',
+  cursor: '#5fd3a6'
+})
+
+export function TerminalView({ backgroundAlpha }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const terminalRef = useRef<Terminal>(null)
 
   useEffect(() => {
     const container = containerRef.current
@@ -16,8 +28,11 @@ export function TerminalView() {
       fontFamily: '"Cascadia Mono", Consolas, monospace',
       fontSize: 14,
       cursorBlink: true,
-      theme: { background: '#15171c', foreground: '#f3f0e8', cursor: '#5fd3a6' }
+      // Lets the terminal background show what is behind it.
+      allowTransparency: true,
+      theme: theme(1)
     })
+    terminalRef.current = terminal
     const fitAddon = new FitAddon()
     terminal.loadAddon(fitAddon)
     terminal.open(container)
@@ -61,9 +76,16 @@ export function TerminalView() {
       stopData()
       stopExit()
       if (id !== undefined) api.kill(id)
+      terminalRef.current = null
       terminal.dispose()
     }
   }, [])
+
+  // Change the background opacity without recreating the terminal. Declared after the
+  // effect above, so it also runs once the terminal exists.
+  useEffect(() => {
+    if (terminalRef.current) terminalRef.current.options.theme = theme(backgroundAlpha)
+  }, [backgroundAlpha])
 
   return <div className="terminal" ref={containerRef} />
 }

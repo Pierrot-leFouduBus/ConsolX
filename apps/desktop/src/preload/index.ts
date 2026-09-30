@@ -19,6 +19,16 @@ const api: ConsolxApi = {
     download: () => ipcRenderer.send(IpcChannel.updateDownload),
     install: () => ipcRenderer.send(IpcChannel.updateInstall),
     onState: (listener) => subscribe(IpcChannel.updateState, listener)
+  },
+  proto: {
+    getSettings: () => ipcRenderer.invoke(IpcChannel.protoGetSettings),
+    recreate: (settings) => ipcRenderer.send(IpcChannel.protoRecreate, settings),
+    update: (settings) => ipcRenderer.send(IpcChannel.protoUpdate, settings),
+    getInfo: () => ipcRenderer.invoke(IpcChannel.protoGetInfo),
+    onInfo: (listener) => subscribe(IpcChannel.protoInfo, listener),
+    minimize: () => ipcRenderer.send(IpcChannel.windowMinimize),
+    toggleMaximize: () => ipcRenderer.send(IpcChannel.windowToggleMaximize),
+    close: () => ipcRenderer.send(IpcChannel.windowClose)
   }
 }
 

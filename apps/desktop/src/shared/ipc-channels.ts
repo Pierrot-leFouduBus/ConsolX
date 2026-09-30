@@ -9,8 +9,16 @@ export const IpcChannel = {
   updateGetState: 'update:get-state',
   updateDownload: 'update:download',
   updateInstall: 'update:install',
+  protoGetSettings: 'proto:get-settings',
+  protoRecreate: 'proto:recreate',
+  protoUpdate: 'proto:update',
+  protoGetInfo: 'proto:get-info',
+  windowMinimize: 'window:minimize',
+  windowToggleMaximize: 'window:toggle-maximize',
+  windowClose: 'window:close',
   // main -> UI
   terminalData: 'terminal:data',
   terminalExit: 'terminal:exit',
-  updateState: 'update:state'
+  updateState: 'update:state',
+  protoInfo: 'proto:info'
 } as const

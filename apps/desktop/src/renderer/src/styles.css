@@ -9,12 +9,14 @@
   --cx-on-accent: #15171c;
 }
 
+/* PROTOTYPE: the page is transparent; .app draws the background, with an opacity
+   set by the settings panel (--cx-ui-alpha). */
 html,
 body,
 #root {
   margin: 0;
   height: 100%;
-  background: var(--cx-bg);
+  background: transparent;
   color: var(--cx-fg);
   font-family: system-ui, sans-serif;
 }
@@ -23,13 +25,98 @@ body,
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: rgba(21, 23, 28, var(--cx-ui-alpha, 1));
 }
 
-/* The terminal takes all the space left by the status bar. */
-.terminal {
+/* PROTOTYPE: title bar drawn by the app. The bar moves the window; buttons do not. */
+.title-bar {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding-left: 12px;
+  font-size: 12px;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.title-bar .title {
+  flex: 1;
+}
+
+.window-buttons {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.window-buttons button {
+  width: 46px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: 13px;
+}
+
+.window-buttons button.close:hover {
+  background: #c42b1c;
+}
+
+/* Terminal and settings panel side by side. */
+.workspace {
+  display: flex;
   flex: 1;
   min-height: 0;
+}
+
+/* The terminal takes all the space left by the other parts. */
+.terminal {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 6px 8px;
+}
+
+/* xterm.css paints the viewport black, and xterm.js 6 no longer replaces it with the
+   theme background: without this, the terminal stays opaque. */
+.xterm .xterm-viewport {
+  background-color: transparent;
+}
+
+/* PROTOTYPE: settings panel. */
+.proto-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 260px;
+  padding: 12px;
+  overflow-y: auto;
+  border-left: 1px solid var(--cx-border);
+  background: rgba(31, 34, 41, 0.85);
+  font-size: 12px;
+}
+
+.proto-panel h2 {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  color: var(--cx-accent);
+}
+
+.proto-panel label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.proto-panel .slider {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.proto-panel p {
+  margin: 0;
+  color: var(--cx-fg-muted);
+  line-height: 1.6;
 }
 
 .status-bar {
