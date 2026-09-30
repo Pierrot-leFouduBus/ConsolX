@@ -40,7 +40,10 @@ export class TerminalManager {
       cols: size.cols,
       rows: size.rows,
       cwd: launch.cwd,
-      env: launch.env
+      env: launch.env,
+      // On Windows, use the recent ConPTY shipped with node-pty rather than the one of
+      // Windows 10, which loses lines of the history (for example with PowerShell).
+      useConptyDll: true
     })
     pty.onData((data) => listener.onData(data))
     pty.onExit(({ exitCode }) => {

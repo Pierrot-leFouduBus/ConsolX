@@ -61,7 +61,8 @@ describe('TerminalManager', () => {
       cols: 120,
       rows: 40,
       cwd: 'C:\\Users\\me',
-      env: { PATH: 'C:\\Windows' }
+      env: { PATH: 'C:\\Windows' },
+      useConptyDll: true
     })
   })
 

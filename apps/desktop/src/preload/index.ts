@@ -3,6 +3,7 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type { ConsolxApi, Unsubscribe } from '../shared/consolx-api'
 import { IpcChannel } from '../shared/ipc-channels'
+import { windowsPty } from '../shared/windows-pty'
 
 const api: ConsolxApi = {
   getAppInfo: () => ipcRenderer.invoke(IpcChannel.getAppInfo),
@@ -14,6 +15,7 @@ const api: ConsolxApi = {
     onMaximizedChange: (listener) => subscribe(IpcChannel.windowMaximizedChange, listener)
   },
   terminal: {
+    windowsPty: process.platform === 'win32' ? windowsPty(process.getSystemVersion()) : undefined,
     getProfiles: () => ipcRenderer.invoke(IpcChannel.terminalGetProfiles),
     create: (profileId, cols, rows) =>
       ipcRenderer.invoke(IpcChannel.terminalCreate, profileId, cols, rows),

@@ -3,6 +3,7 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
+import { ConptyScrollFix } from '../../shared/windows-pty'
 
 interface TerminalViewProps {
   // Shell to start; null for the default one.
@@ -34,7 +35,9 @@ export function TerminalView({ profileId, active, focusRequests, onExit }: Termi
       fontFamily: '"Cascadia Mono", Consolas, monospace',
       fontSize: 14,
       cursorBlink: true,
-      theme: { background: '#15171c', foreground: '#f3f0e8', cursor: '#5fd3a6' }
+      theme: { background: '#15171c', foreground: '#f3f0e8', cursor: '#5fd3a6' },
+      // On Windows, ConPTY or winpty also draw the shell's screen: xterm.js adapts to them.
+      windowsPty: api.windowsPty
     })
     const fitAddon = new FitAddon()
     terminal.loadAddon(fitAddon)
@@ -46,8 +49,9 @@ export function TerminalView({ profileId, active, focusRequests, onExit }: Termi
     let id: number | undefined
     let closed = false
 
+    const scrollFix = api.windowsPty?.backend === 'conpty' ? new ConptyScrollFix() : undefined
     const stopData = api.onData((terminalId, data) => {
-      if (terminalId === id) terminal.write(data)
+      if (terminalId === id) terminal.write(scrollFix ? scrollFix.rewrite(data) : data)
     })
     const stopExit = api.onExit((terminalId, exitCode) => {
       if (terminalId !== id) return

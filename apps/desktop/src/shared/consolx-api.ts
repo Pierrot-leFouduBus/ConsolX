@@ -1,5 +1,6 @@
 // Shape of the API that the preload script exposes to the UI as `window.consolx`.
 // Shared by the preload (which builds it) and the renderer (which uses it).
+import type { WindowsPty } from './windows-pty'
 
 // Stops listening to an event.
 export type Unsubscribe = () => void
@@ -17,6 +18,8 @@ export interface ShellProfiles {
 }
 
 export interface TerminalApi {
+  // How shells run on Windows; undefined on other systems.
+  readonly windowsPty: WindowsPty | undefined
   // Shells found on this computer.
   getProfiles(): Promise<ShellProfiles>
   // Starts a shell in a new terminal of the given size and returns the terminal id.
