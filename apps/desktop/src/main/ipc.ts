@@ -1,8 +1,10 @@
 // IPC handlers: the only entry points from the UI into the main process.
 // Every argument comes from the UI, so it is checked before use.
 import { app, ipcMain } from 'electron'
+import { homedir } from 'node:os'
 import { IpcChannel } from '../shared/ipc-channels'
-import type { TerminalManager } from './terminal-manager'
+import { shellEnvironment } from './shell-env'
+import type { ShellLaunch, TerminalManager } from './terminal-manager'
 import { downloadUpdate, getUpdateState, installUpdate } from './updater'
 
 export function registerIpcHandlers(terminals: TerminalManager): void {
@@ -15,9 +17,9 @@ export function registerIpcHandlers(terminals: TerminalManager): void {
   ipcMain.handle(IpcChannel.terminalCreate, (event, cols: unknown, rows: unknown) => {
     if (!isTerminalSize(cols) || !isTerminalSize(rows)) throw new Error('Invalid terminal size')
 
-    // Send the shell output back to the page that created the terminal.
+    // The terminal belongs to the page that created it, which gets its output.
     const page = event.sender
-    const id = terminals.create(cols, rows, {
+    const id = terminals.create(defaultLaunch(), { cols, rows }, page.id, {
       onData: (data) => {
         if (!page.isDestroyed()) page.send(IpcChannel.terminalData, id, data)
       },
@@ -28,19 +30,31 @@ export function registerIpcHandlers(terminals: TerminalManager): void {
     return id
   })
 
-  ipcMain.on(IpcChannel.terminalWrite, (_event, id: unknown, data: unknown) => {
-    if (isTerminalId(id) && typeof data === 'string') terminals.write(id, data)
+  ipcMain.on(IpcChannel.terminalWrite, (event, id: unknown, data: unknown) => {
+    if (isTerminalId(id) && typeof data === 'string') terminals.write(id, event.sender.id, data)
   })
 
-  ipcMain.on(IpcChannel.terminalResize, (_event, id: unknown, cols: unknown, rows: unknown) => {
+  ipcMain.on(IpcChannel.terminalResize, (event, id: unknown, cols: unknown, rows: unknown) => {
     if (isTerminalId(id) && isTerminalSize(cols) && isTerminalSize(rows)) {
-      terminals.resize(id, cols, rows)
+      terminals.resize(id, event.sender.id, cols, rows)
     }
   })
 
-  ipcMain.on(IpcChannel.terminalKill, (_event, id: unknown) => {
-    if (isTerminalId(id)) terminals.kill(id)
+  ipcMain.on(IpcChannel.terminalKill, (event, id: unknown) => {
+    if (isTerminalId(id)) terminals.kill(id, event.sender.id)
   })
+}
+
+// Shell started by every terminal, until shell profiles arrive (step 3.2).
+function defaultLaunch(): ShellLaunch {
+  const file =
+    process.platform === 'win32' ? 'powershell.exe' : (process.env['SHELL'] ?? '/bin/bash')
+  return {
+    file,
+    args: [],
+    cwd: homedir(),
+    env: shellEnvironment(process.env, app.getVersion())
+  }
 }
 
 function isTerminalId(value: unknown): value is number {

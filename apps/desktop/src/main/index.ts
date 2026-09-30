@@ -31,11 +31,12 @@ function createWindow(): void {
   // Never open new windows from the UI.
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
-  // There is a single window for now: when its page reloads or closes, stop all shells.
+  // When the page reloads or the window closes, stop the shells of its terminals.
+  const pageId = window.webContents.id
   window.webContents.on('did-start-navigation', (details) => {
-    if (details.isMainFrame && !details.isSameDocument) terminals.killAll()
+    if (details.isMainFrame && !details.isSameDocument) terminals.killOwnedBy(pageId)
   })
-  window.on('closed', () => terminals.killAll())
+  window.on('closed', () => terminals.killOwnedBy(pageId))
 
   const source = getRendererSource(app.isPackaged, process.env['ELECTRON_RENDERER_URL'], __dirname)
   if (source.type === 'url') {
