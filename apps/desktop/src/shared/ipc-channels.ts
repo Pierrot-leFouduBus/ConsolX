@@ -10,8 +10,13 @@ export const IpcChannel = {
   updateGetState: 'update:get-state',
   updateDownload: 'update:download',
   updateInstall: 'update:install',
+  windowMinimize: 'window:minimize',
+  windowToggleMaximize: 'window:toggle-maximize',
+  windowClose: 'window:close',
+  windowIsMaximized: 'window:is-maximized',
   // main -> UI
   terminalData: 'terminal:data',
   terminalExit: 'terminal:exit',
-  updateState: 'update:state'
+  updateState: 'update:state',
+  windowMaximizedChange: 'window:maximized-change'
 } as const

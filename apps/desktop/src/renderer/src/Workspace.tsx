@@ -13,6 +13,7 @@ import { NewTerminalMenu } from './NewTerminalMenu'
 import { TerminalTab } from './TerminalTab'
 import { TerminalView } from './TerminalView'
 import { defaultShell, openTerminal, ShellsContext, type TerminalParams } from './terminals'
+import { trackTitleBar } from './titleBar'
 
 // Content of a terminal panel.
 function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
@@ -46,6 +47,7 @@ export function Workspace({ shells }: WorkspaceProps) {
   const onReady = ({ api }: DockviewReadyEvent) => {
     const shell = defaultShell(shells)
     if (shell) openTerminal(api, shell)
+    trackTitleBar(api)
 
     // Closing the last terminal closes the window. Checked a moment later, since
     // moving a tab also removes it for an instant.
@@ -66,6 +68,9 @@ export function Workspace({ shells }: WorkspaceProps) {
         rightHeaderActionsComponent={NewTerminalMenu}
         // Keep terminals of hidden tabs alive, instead of rebuilding them.
         defaultRenderer="always"
+        // No drop on the outer edges of the layout: along the top, it would catch tabs
+        // dropped on the title bar. Dropping on the edge of a terminal still splits it.
+        dndEdges={false}
         onReady={onReady}
       />
     </ShellsContext.Provider>

@@ -6,6 +6,13 @@ import { IpcChannel } from '../shared/ipc-channels'
 
 const api: ConsolxApi = {
   getAppInfo: () => ipcRenderer.invoke(IpcChannel.getAppInfo),
+  appWindow: {
+    minimize: () => ipcRenderer.send(IpcChannel.windowMinimize),
+    toggleMaximize: () => ipcRenderer.send(IpcChannel.windowToggleMaximize),
+    close: () => ipcRenderer.send(IpcChannel.windowClose),
+    isMaximized: () => ipcRenderer.invoke(IpcChannel.windowIsMaximized),
+    onMaximizedChange: (listener) => subscribe(IpcChannel.windowMaximizedChange, listener)
+  },
   terminal: {
     getProfiles: () => ipcRenderer.invoke(IpcChannel.terminalGetProfiles),
     create: (profileId, cols, rows) =>

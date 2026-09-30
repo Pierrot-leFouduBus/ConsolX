@@ -20,10 +20,16 @@ files:
   - '!**/node_modules/node-pty/{src,deps,third_party,scripts,typings}/**'
   - '!**/node_modules/node-pty/prebuilds/{darwin-*,win32-arm64}/**'
   - '!**/node_modules/node-pty/**/*.pdb'
+  # koffi: keep its JavaScript, drop the C++ sources and docs. npm installs only the
+  # binary for this platform (@koromix/koffi-win32-x64).
+  - '!**/node_modules/koffi/{doc,lib,vendor}/**'
+  - '!**/node_modules/koffi/src/**/*.{cc,hh,inc,S,asm,def,txt}'
 
-# node-pty loads native files and starts helper programs: keep it outside the archive.
+# node-pty loads native files and starts helper programs, koffi loads a native file:
+# keep them outside the archive.
 asarUnpack:
   - '**/node_modules/node-pty/**'
+  - '**/node_modules/@koromix/koffi-*/**'
 
 # node-pty ships prebuilt binaries using Node-API, which work with any Electron version,
 # so there is nothing to rebuild.

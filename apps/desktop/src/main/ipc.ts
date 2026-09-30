@@ -1,18 +1,28 @@
 // IPC handlers: the only entry points from the UI into the main process.
 // Every argument comes from the UI, so it is checked before use.
-import { app, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron'
 import { homedir } from 'node:os'
 import { IpcChannel } from '../shared/ipc-channels'
 import { shellEnvironment } from './shell-env'
 import { defaultProfileId, detectShellProfiles } from './shell-profiles'
 import type { TerminalManager } from './terminal-manager'
 import { downloadUpdate, getUpdateState, installUpdate } from './updater'
+import { toggleMaximize } from './window-frame'
 
 export function registerIpcHandlers(terminals: TerminalManager): void {
   // Look for the installed shells once, in the background, at startup.
   const detectedProfiles = detectShellProfiles()
 
   ipcMain.handle(IpcChannel.getAppInfo, () => ({ name: app.getName(), version: app.getVersion() }))
+
+  // Window buttons: each acts on the window of the page that sent it.
+  ipcMain.on(IpcChannel.windowMinimize, (event) => windowOf(event)?.minimize())
+  ipcMain.on(IpcChannel.windowToggleMaximize, (event) => {
+    const window = windowOf(event)
+    if (window) toggleMaximize(window)
+  })
+  ipcMain.on(IpcChannel.windowClose, (event) => windowOf(event)?.close())
+  ipcMain.handle(IpcChannel.windowIsMaximized, (event) => windowOf(event)?.isMaximized() ?? false)
 
   ipcMain.handle(IpcChannel.updateGetState, () => getUpdateState())
   ipcMain.on(IpcChannel.updateDownload, () => downloadUpdate())
@@ -72,6 +82,10 @@ export function registerIpcHandlers(terminals: TerminalManager): void {
   ipcMain.on(IpcChannel.terminalKill, (event, id: unknown) => {
     if (isTerminalId(id)) terminals.kill(id, event.sender.id)
   })
+}
+
+function windowOf(event: IpcMainEvent | IpcMainInvokeEvent): BrowserWindow | null {
+  return BrowserWindow.fromWebContents(event.sender)
 }
 
 function isTerminalId(value: unknown): value is number {

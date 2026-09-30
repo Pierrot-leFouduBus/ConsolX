@@ -43,6 +43,7 @@
   "allowScripts": {
     "node-pty": true,
     "esbuild": true,
-    "electron-winstaller": false
+    "electron-winstaller": false,
+    "koffi": true
   }
 }

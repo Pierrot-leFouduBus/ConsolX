@@ -8,13 +8,19 @@
   --cx-border: rgba(243, 240, 232, 0.12);
   --cx-accent: #5fd3a6;
   --cx-on-accent: #15171c;
+  --cx-tab-bar-height: 32px;
+  /* Three window buttons of 46px, as in Windows. */
+  --cx-window-buttons-width: 138px;
 }
 
+/* The page never scrolls: its parts fit the window. Scrollbars appearing for an instant
+   while the window shrinks would also make dockview miss the new size. */
 html,
 body,
 #root {
   margin: 0;
   height: 100%;
+  overflow: hidden;
   background: var(--cx-bg);
   color: var(--cx-fg);
   font-family: system-ui, sans-serif;
@@ -36,7 +42,7 @@ body,
 .dockview-theme-dark {
   --dv-group-view-background-color: var(--cx-bg);
   --dv-tabs-and-actions-container-background-color: var(--cx-surface);
-  --dv-tabs-and-actions-container-height: 32px;
+  --dv-tabs-and-actions-container-height: var(--cx-tab-bar-height);
   --dv-tabs-and-actions-container-font-size: 12px;
   --dv-activegroup-visiblepanel-tab-background-color: var(--cx-bg);
   --dv-activegroup-hiddenpanel-tab-background-color: var(--cx-surface);
@@ -50,6 +56,71 @@ body,
   --dv-separator-border: var(--cx-border);
   --dv-drag-over-background-color: rgba(95, 211, 166, 0.2);
   font-family: inherit;
+}
+
+/* Title bar (see titleBar.ts): the empty space of the top tab bars moves the window. It
+   keeps some width even when the tabs fill the bar. */
+.title-bar-group .dv-tabs-and-actions-container .dv-void-container {
+  min-width: 40px;
+  cursor: default;
+  -webkit-app-region: drag;
+}
+
+.dragging-tab .title-bar-group .dv-tabs-and-actions-container .dv-void-container {
+  -webkit-app-region: no-drag;
+}
+
+/* The top right tab bar leaves room for the window buttons. */
+.window-buttons-group .dv-tabs-and-actions-container {
+  padding-right: var(--cx-window-buttons-width);
+}
+
+.window-buttons {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  width: var(--cx-window-buttons-width);
+  height: var(--cx-tab-bar-height);
+  -webkit-app-region: no-drag;
+}
+
+.window-buttons button {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--cx-fg-muted);
+}
+
+.window-buttons button:hover {
+  background: var(--cx-border);
+  color: var(--cx-fg);
+}
+
+.window-buttons button.close:hover {
+  background: #e81123;
+  color: #ffffff;
+}
+
+.window-buttons button.close:active {
+  background: #f1707a;
+}
+
+.window-buttons svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.window-buttons .close svg {
+  shape-rendering: geometricPrecision;
 }
 
 /* A terminal fills its pane. Not named "terminal": xterm.js gives that class to its
@@ -180,11 +251,13 @@ body,
   font-size: 12px;
 }
 
+/* Without tabs there is no title bar: this message moves the window instead. */
 .no-shell {
   flex: 1;
   margin: 0;
   padding: 16px;
   color: var(--cx-fg-muted);
+  -webkit-app-region: drag;
 }
 
 /* Buttons of the update prompt and toast. */

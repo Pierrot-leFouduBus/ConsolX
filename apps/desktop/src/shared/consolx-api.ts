@@ -60,8 +60,20 @@ export interface UpdatesApi {
   onState(listener: (state: UpdateState) => void): Unsubscribe
 }
 
+// The window the UI runs in. It has no system frame, so the UI draws its buttons.
+export interface AppWindowApi {
+  minimize(): void
+  // Maximizes the window, or restores it when it is maximized.
+  toggleMaximize(): void
+  close(): void
+  isMaximized(): Promise<boolean>
+  // Called when the window is maximized or restored.
+  onMaximizedChange(listener: (maximized: boolean) => void): Unsubscribe
+}
+
 export interface ConsolxApi {
   getAppInfo(): Promise<AppInfo>
+  appWindow: AppWindowApi
   terminal: TerminalApi
   updates: UpdatesApi
 }

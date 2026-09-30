@@ -1,9 +1,11 @@
-// Main screen: the terminals and a status bar, plus the update prompt and toast when needed.
+// Main screen: the terminals, a status bar and the window buttons, plus the update prompt
+// and toast when needed.
 import { useEffect, useState } from 'react'
 import type { AppInfo, ShellProfiles, UpdateState } from '../../shared/consolx-api'
 import { UpdatePrompt } from './UpdatePrompt'
 import { UpdateToast } from './UpdateToast'
 import { useUpdateState } from './useUpdateState'
+import { WindowButtons } from './WindowButtons'
 import { Workspace } from './Workspace'
 
 export function App() {
@@ -57,6 +59,9 @@ export function App() {
           onClose={() => setToastClosedFor(update.version)}
         />
       )}
+
+      {/* Last, so that it stays above the tab bar it covers. */}
+      <WindowButtons />
     </div>
   )
 }
