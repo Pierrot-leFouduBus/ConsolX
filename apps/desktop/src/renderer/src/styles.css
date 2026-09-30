@@ -4,6 +4,7 @@
   --cx-surface: #1f2229;
   --cx-fg: #f3f0e8;
   --cx-fg-muted: rgba(243, 240, 232, 0.6);
+  --cx-fg-faint: rgba(243, 240, 232, 0.4);
   --cx-border: rgba(243, 240, 232, 0.12);
   --cx-accent: #5fd3a6;
   --cx-on-accent: #15171c;
@@ -25,11 +26,37 @@ body,
   height: 100%;
 }
 
-/* The terminal takes all the space left by the status bar. Not named "terminal":
-   xterm.js gives that class to its own element, which would get this padding too. */
-.terminal-view {
+/* The tabs and panes take all the space left by the status bar. */
+.workspace {
   flex: 1;
   min-height: 0;
+}
+
+/* dockview's dark theme, with the ConsolX colors. */
+.dockview-theme-dark {
+  --dv-group-view-background-color: var(--cx-bg);
+  --dv-tabs-and-actions-container-background-color: var(--cx-surface);
+  --dv-tabs-and-actions-container-height: 32px;
+  --dv-tabs-and-actions-container-font-size: 12px;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--cx-bg);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--cx-surface);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--cx-bg);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--cx-surface);
+  --dv-tab-divider-color: var(--cx-bg);
+  --dv-activegroup-visiblepanel-tab-color: var(--cx-fg);
+  --dv-activegroup-hiddenpanel-tab-color: var(--cx-fg-muted);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--cx-fg-muted);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--cx-fg-faint);
+  --dv-separator-border: var(--cx-border);
+  --dv-drag-over-background-color: rgba(95, 211, 166, 0.2);
+  font-family: inherit;
+}
+
+/* A terminal fills its pane. Not named "terminal": xterm.js gives that class to its
+   own element, which would get this padding too. */
+.terminal-view {
+  box-sizing: border-box;
+  height: 100%;
   padding: 6px 8px;
 }
 
@@ -38,6 +65,108 @@ body,
 .xterm .xterm-viewport {
   background-color: transparent;
   overflow-y: hidden;
+}
+
+/* Terminal tab: title, rename field and close button. */
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 4px 0 12px;
+}
+
+.tab-title {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-rename {
+  width: 140px;
+  padding: 2px 4px;
+  border: 1px solid var(--cx-accent);
+  border-radius: 3px;
+  background: var(--cx-bg);
+  color: var(--cx-fg);
+  font: inherit;
+}
+
+.tab-close,
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab-close {
+  font-size: 15px;
+  opacity: 0.6;
+}
+
+.tab-close:hover,
+.icon-button:hover {
+  background: var(--cx-border);
+  opacity: 1;
+}
+
+.icon-button {
+  font-size: 18px;
+  color: var(--cx-fg-muted);
+}
+
+/* "+" button and its menu. */
+.group-actions {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 6px;
+}
+
+.menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 4px;
+  border: 1px solid var(--cx-border);
+  border-radius: 6px;
+  background: var(--cx-surface);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  font-size: 13px;
+}
+
+.menu button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cx-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu button:hover,
+.menu button:focus-visible {
+  background: var(--cx-border);
+  outline: none;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 4px 2px;
+  background: var(--cx-border);
 }
 
 .status-bar {
@@ -51,15 +180,6 @@ body,
   font-size: 12px;
 }
 
-/* Shell chooser in the status bar (temporary, until tabs). */
-.profile-select {
-  border: 1px solid var(--cx-border);
-  border-radius: 4px;
-  background: var(--cx-bg);
-  color: var(--cx-fg);
-  font: inherit;
-}
-
 .no-shell {
   flex: 1;
   margin: 0;
@@ -68,7 +188,7 @@ body,
 }
 
 /* Buttons of the update prompt and toast. */
-button {
+:is(.dialog, .toast) button {
   padding: 6px 14px;
   border: 1px solid var(--cx-border);
   border-radius: 6px;
@@ -78,17 +198,17 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+:is(.dialog, .toast) button:hover {
   background: var(--cx-border);
 }
 
-button.primary {
+:is(.dialog, .toast) button.primary {
   border-color: var(--cx-accent);
   background: var(--cx-accent);
   color: var(--cx-on-accent);
 }
 
-button.primary:hover {
+:is(.dialog, .toast) button.primary:hover {
   filter: brightness(1.1);
 }
 

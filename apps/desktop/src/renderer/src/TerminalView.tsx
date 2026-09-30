@@ -7,10 +7,21 @@ import { useEffect, useRef } from 'react'
 interface TerminalViewProps {
   // Shell to start; null for the default one.
   profileId: string | null
+  // Whether the terminal is the one the user works in: it then gets the keyboard.
+  active: boolean
+  // Called when the shell ends by itself, with its exit code.
+  onExit(exitCode: number): void
 }
 
-export function TerminalView({ profileId }: TerminalViewProps) {
+export function TerminalView({ profileId, active, onExit }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const terminalRef = useRef<Terminal>(null)
+  // Latest onExit, read when the shell ends, so that it does not restart the terminal.
+  const onExitRef = useRef(onExit)
+
+  useEffect(() => {
+    onExitRef.current = onExit
+  }, [onExit])
 
   useEffect(() => {
     const container = containerRef.current
@@ -27,7 +38,7 @@ export function TerminalView({ profileId }: TerminalViewProps) {
     terminal.loadAddon(fitAddon)
     terminal.open(container)
     fitAddon.fit()
-    terminal.focus()
+    terminalRef.current = terminal
 
     // Id of the shell's terminal in the main process, known once it has started.
     let id: number | undefined
@@ -37,7 +48,9 @@ export function TerminalView({ profileId }: TerminalViewProps) {
       if (terminalId === id) terminal.write(data)
     })
     const stopExit = api.onExit((terminalId, exitCode) => {
-      if (terminalId === id) terminal.write(`\r\n[Process exited with code ${exitCode}]\r\n`)
+      if (terminalId !== id) return
+      terminal.write(`\r\n[Process exited with code ${exitCode}]\r\n`)
+      onExitRef.current(exitCode)
     })
 
     api.create(profileId, terminal.cols, terminal.rows).then(
@@ -69,9 +82,16 @@ export function TerminalView({ profileId }: TerminalViewProps) {
       stopData()
       stopExit()
       if (id !== undefined) api.kill(id)
+      terminalRef.current = null
       terminal.dispose()
     }
   }, [profileId])
+
+  // Give the keyboard to the terminal when it becomes the active one. Declared after the
+  // effect above, so that it also runs once the terminal exists.
+  useEffect(() => {
+    if (active) terminalRef.current?.focus()
+  }, [active])
 
   return <div className="terminal-view" ref={containerRef} />
 }
