@@ -9,11 +9,13 @@ interface TerminalViewProps {
   profileId: string | null
   // Whether the terminal is the one the user works in: it then gets the keyboard.
   active: boolean
+  // Each change gives the keyboard back to the active terminal.
+  focusRequests: number
   // Called when the shell ends by itself, with its exit code.
   onExit(exitCode: number): void
 }
 
-export function TerminalView({ profileId, active, onExit }: TerminalViewProps) {
+export function TerminalView({ profileId, active, focusRequests, onExit }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const terminalRef = useRef<Terminal>(null)
   // Latest onExit, read when the shell ends, so that it does not restart the terminal.
@@ -87,11 +89,19 @@ export function TerminalView({ profileId, active, onExit }: TerminalViewProps) {
     }
   }, [profileId])
 
-  // Give the keyboard to the terminal when it becomes the active one. Declared after the
-  // effect above, so that it also runs once the terminal exists.
+  // Give the keyboard to the terminal when it becomes the active one, or when asked.
+  // Declared after the effect above, so that it also runs once the terminal exists.
   useEffect(() => {
-    if (active) terminalRef.current?.focus()
-  }, [active])
+    if (!active) return
+    // dockview shows a panel that becomes active in the next frame: a hidden terminal
+    // cannot take the keyboard before.
+    const frame = requestAnimationFrame(() => {
+      // Never take the keyboard from a text field, such as the tab rename field.
+      if (document.activeElement instanceof HTMLInputElement) return
+      terminalRef.current?.focus()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [active, focusRequests])
 
   return <div className="terminal-view" ref={containerRef} />
 }

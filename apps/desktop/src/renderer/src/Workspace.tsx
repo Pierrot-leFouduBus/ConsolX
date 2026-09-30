@@ -18,16 +18,23 @@ import { trackTitleBar } from './titleBar'
 // Content of a terminal panel.
 function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
   const [active, setActive] = useState(api.isActive)
+  // Counts the requests to focus the panel, for example after renaming its tab.
+  const [focusRequests, setFocusRequests] = useState(0)
 
   useEffect(() => {
-    const listener = api.onDidActiveChange((event) => setActive(event.isActive))
-    return () => listener.dispose()
+    const activeListener = api.onDidActiveChange((event) => setActive(event.isActive))
+    const focusListener = api.onWillFocus(() => setFocusRequests((count) => count + 1))
+    return () => {
+      activeListener.dispose()
+      focusListener.dispose()
+    }
   }, [api])
 
   return (
     <TerminalView
       profileId={params.profileId}
       active={active}
+      focusRequests={focusRequests}
       // A shell that ends normally closes its tab; after an error, the tab stays
       // open so that its message can be read.
       onExit={(exitCode) => {
