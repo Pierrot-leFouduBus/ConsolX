@@ -34,12 +34,29 @@ body,
 
 .status-bar {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 3px 10px;
   border-top: 1px solid var(--cx-border);
   color: var(--cx-fg-muted);
   font-size: 12px;
+}
+
+/* Shell chooser in the status bar (temporary, until tabs). */
+.profile-select {
+  border: 1px solid var(--cx-border);
+  border-radius: 4px;
+  background: var(--cx-bg);
+  color: var(--cx-fg);
+  font: inherit;
+}
+
+.no-shell {
+  flex: 1;
+  margin: 0;
+  padding: 16px;
+  color: var(--cx-fg-muted);
 }
 
 /* Buttons of the update prompt and toast. */

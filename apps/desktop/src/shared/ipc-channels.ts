@@ -2,6 +2,7 @@
 export const IpcChannel = {
   // UI -> main
   getAppInfo: 'app:get-info',
+  terminalGetProfiles: 'terminal:get-profiles',
   terminalCreate: 'terminal:create',
   terminalWrite: 'terminal:write',
   terminalResize: 'terminal:resize',

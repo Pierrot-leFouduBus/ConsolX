@@ -4,9 +4,24 @@
 // Stops listening to an event.
 export type Unsubscribe = () => void
 
+// A shell the user can open, for example "Windows PowerShell" or "Ubuntu" (WSL).
+export interface ShellProfile {
+  id: string
+  name: string
+}
+
+export interface ShellProfiles {
+  profiles: ShellProfile[]
+  // Profile opened when none is chosen; null when no shell was found.
+  defaultId: string | null
+}
+
 export interface TerminalApi {
+  // Shells found on this computer.
+  getProfiles(): Promise<ShellProfiles>
   // Starts a shell in a new terminal of the given size and returns the terminal id.
-  create(cols: number, rows: number): Promise<number>
+  // A null profile opens the default one.
+  create(profileId: string | null, cols: number, rows: number): Promise<number>
   // Sends keyboard input to the shell.
   write(id: number, data: string): void
   // Tells the shell the new terminal size.

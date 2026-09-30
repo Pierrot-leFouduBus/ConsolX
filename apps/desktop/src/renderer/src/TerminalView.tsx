@@ -4,7 +4,12 @@ import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 
-export function TerminalView() {
+interface TerminalViewProps {
+  // Shell to start; null for the default one.
+  profileId: string | null
+}
+
+export function TerminalView({ profileId }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,12 +40,15 @@ export function TerminalView() {
       if (terminalId === id) terminal.write(`\r\n[Process exited with code ${exitCode}]\r\n`)
     })
 
-    void api.create(terminal.cols, terminal.rows).then((newId) => {
-      // The view may have been closed while the shell was starting.
-      if (closed) return api.kill(newId)
-      id = newId
-      api.resize(id, terminal.cols, terminal.rows)
-    })
+    api.create(profileId, terminal.cols, terminal.rows).then(
+      (newId) => {
+        // The view may have been closed while the shell was starting.
+        if (closed) return api.kill(newId)
+        id = newId
+        api.resize(id, terminal.cols, terminal.rows)
+      },
+      () => terminal.write('\r\n[The shell could not be started]\r\n')
+    )
 
     const input = terminal.onData((data) => {
       if (id !== undefined) api.write(id, data)
@@ -63,7 +71,7 @@ export function TerminalView() {
       if (id !== undefined) api.kill(id)
       terminal.dispose()
     }
-  }, [])
+  }, [profileId])
 
   return <div className="terminal" ref={containerRef} />
 }

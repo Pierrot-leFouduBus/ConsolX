@@ -7,7 +7,9 @@ import { IpcChannel } from '../shared/ipc-channels'
 const api: ConsolxApi = {
   getAppInfo: () => ipcRenderer.invoke(IpcChannel.getAppInfo),
   terminal: {
-    create: (cols, rows) => ipcRenderer.invoke(IpcChannel.terminalCreate, cols, rows),
+    getProfiles: () => ipcRenderer.invoke(IpcChannel.terminalGetProfiles),
+    create: (profileId, cols, rows) =>
+      ipcRenderer.invoke(IpcChannel.terminalCreate, profileId, cols, rows),
     write: (id, data) => ipcRenderer.send(IpcChannel.terminalWrite, id, data),
     resize: (id, cols, rows) => ipcRenderer.send(IpcChannel.terminalResize, id, cols, rows),
     kill: (id) => ipcRenderer.send(IpcChannel.terminalKill, id),

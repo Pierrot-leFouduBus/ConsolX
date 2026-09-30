@@ -6,6 +6,13 @@ import { getRendererSource } from './renderer-source'
 import { TerminalManager } from './terminal-manager'
 import { startAutoUpdate } from './updater'
 
+// Development only, on request: open the Chrome DevTools protocol on a local port, so
+// that tools can inspect and drive the UI (CONSOLX_REMOTE_DEBUGGING_PORT=9222).
+const debuggingPort = process.env['CONSOLX_REMOTE_DEBUGGING_PORT']
+if (!app.isPackaged && debuggingPort) {
+  app.commandLine.appendSwitch('remote-debugging-port', debuggingPort)
+}
+
 const terminals = new TerminalManager()
 registerIpcHandlers(terminals)
 

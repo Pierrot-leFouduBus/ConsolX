@@ -4,31 +4,60 @@ import { app, ipcMain } from 'electron'
 import { homedir } from 'node:os'
 import { IpcChannel } from '../shared/ipc-channels'
 import { shellEnvironment } from './shell-env'
-import type { ShellLaunch, TerminalManager } from './terminal-manager'
+import { defaultProfileId, detectShellProfiles } from './shell-profiles'
+import type { TerminalManager } from './terminal-manager'
 import { downloadUpdate, getUpdateState, installUpdate } from './updater'
 
 export function registerIpcHandlers(terminals: TerminalManager): void {
+  // Look for the installed shells once, in the background, at startup.
+  const detectedProfiles = detectShellProfiles()
+
   ipcMain.handle(IpcChannel.getAppInfo, () => ({ name: app.getName(), version: app.getVersion() }))
 
   ipcMain.handle(IpcChannel.updateGetState, () => getUpdateState())
   ipcMain.on(IpcChannel.updateDownload, () => downloadUpdate())
   ipcMain.on(IpcChannel.updateInstall, () => installUpdate())
 
-  ipcMain.handle(IpcChannel.terminalCreate, (event, cols: unknown, rows: unknown) => {
-    if (!isTerminalSize(cols) || !isTerminalSize(rows)) throw new Error('Invalid terminal size')
-
-    // The terminal belongs to the page that created it, which gets its output.
-    const page = event.sender
-    const id = terminals.create(defaultLaunch(), { cols, rows }, page.id, {
-      onData: (data) => {
-        if (!page.isDestroyed()) page.send(IpcChannel.terminalData, id, data)
-      },
-      onExit: (exitCode) => {
-        if (!page.isDestroyed()) page.send(IpcChannel.terminalExit, id, exitCode)
-      }
-    })
-    return id
+  ipcMain.handle(IpcChannel.terminalGetProfiles, async () => {
+    const profiles = await detectedProfiles
+    return {
+      profiles: profiles.map(({ id, name }) => ({ id, name })),
+      defaultId: defaultProfileId(profiles)
+    }
   })
+
+  ipcMain.handle(
+    IpcChannel.terminalCreate,
+    async (event, profileId: unknown, cols: unknown, rows: unknown) => {
+      if (profileId !== null && typeof profileId !== 'string') throw new Error('Invalid profile')
+      if (!isTerminalSize(cols) || !isTerminalSize(rows)) throw new Error('Invalid terminal size')
+
+      // Only a detected profile can be started.
+      const profiles = await detectedProfiles
+      const wanted = profileId ?? defaultProfileId(profiles)
+      const profile = profiles.find((candidate) => candidate.id === wanted)
+      if (!profile) throw new Error(`Unknown shell profile: ${wanted}`)
+
+      const launch = {
+        file: profile.file,
+        args: profile.args,
+        cwd: homedir(),
+        env: shellEnvironment(process.env, app.getVersion())
+      }
+
+      // The terminal belongs to the page that created it, which gets its output.
+      const page = event.sender
+      const id = terminals.create(launch, { cols, rows }, page.id, {
+        onData: (data) => {
+          if (!page.isDestroyed()) page.send(IpcChannel.terminalData, id, data)
+        },
+        onExit: (exitCode) => {
+          if (!page.isDestroyed()) page.send(IpcChannel.terminalExit, id, exitCode)
+        }
+      })
+      return id
+    }
+  )
 
   ipcMain.on(IpcChannel.terminalWrite, (event, id: unknown, data: unknown) => {
     if (isTerminalId(id) && typeof data === 'string') terminals.write(id, event.sender.id, data)
@@ -43,18 +72,6 @@ export function registerIpcHandlers(terminals: TerminalManager): void {
   ipcMain.on(IpcChannel.terminalKill, (event, id: unknown) => {
     if (isTerminalId(id)) terminals.kill(id, event.sender.id)
   })
-}
-
-// Shell started by every terminal, until shell profiles arrive (step 3.2).
-function defaultLaunch(): ShellLaunch {
-  const file =
-    process.platform === 'win32' ? 'powershell.exe' : (process.env['SHELL'] ?? '/bin/bash')
-  return {
-    file,
-    args: [],
-    cwd: homedir(),
-    env: shellEnvironment(process.env, app.getVersion())
-  }
 }
 
 function isTerminalId(value: unknown): value is number {
