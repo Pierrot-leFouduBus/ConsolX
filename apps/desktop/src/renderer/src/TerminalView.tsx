@@ -73,5 +73,5 @@ export function TerminalView({ profileId }: TerminalViewProps) {
     }
   }, [profileId])
 
-  return <div className="terminal" ref={containerRef} />
+  return <div className="terminal-view" ref={containerRef} />
 }

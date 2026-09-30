@@ -25,11 +25,19 @@ body,
   height: 100%;
 }
 
-/* The terminal takes all the space left by the status bar. */
-.terminal {
+/* The terminal takes all the space left by the status bar. Not named "terminal":
+   xterm.js gives that class to its own element, which would get this padding too. */
+.terminal-view {
   flex: 1;
   min-height: 0;
   padding: 6px 8px;
+}
+
+/* xterm.css paints this legacy element black with a native scrollbar; xterm.js 6 draws
+   its own background and scrollbar on top, so hide both. */
+.xterm .xterm-viewport {
+  background-color: transparent;
+  overflow-y: hidden;
 }
 
 .status-bar {
