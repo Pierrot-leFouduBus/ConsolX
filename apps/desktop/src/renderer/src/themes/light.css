@@ -1,60 +1,62 @@
 /* ConsolX Light: the colors of the light theme, for the same variables as
    themes/dark.css. Every terminal color has a contrast of at least 4.5 with the
    background, except bright white, which cannot stand out on a light background. */
-:root[data-theme='light'] {
-  /* Native parts of the page, such as scrollbars, follow the theme. */
-  color-scheme: light;
+@layer theme {
+  :root[data-theme='light'] {
+    /* Native parts of the page, such as scrollbars, follow the theme. */
+    color-scheme: light;
 
-  /* Window and surfaces. The window background is under everything else. */
-  --cx-window-bg: #f7f5f0;
-  /* Tab bars, menus, dialogs and notices. */
-  --cx-surface: #ebe8e1;
-  /* The tab shown in each group, over its tab bar. */
-  --cx-tab-active-bg: #f7f5f0;
+    /* Window and surfaces. The window background is under everything else. */
+    --cx-window-bg: #f7f5f0;
+    /* Tab bars, menus, dialogs and notices. */
+    --cx-surface: #ebe8e1;
+    /* The tab shown in each group, over its tab bar. */
+    --cx-tab-active-bg: #f7f5f0;
 
-  /* Text. */
-  --cx-fg: #1f2229;
-  --cx-fg-muted: rgba(31, 34, 41, 0.65);
-  --cx-fg-faint: rgba(31, 34, 41, 0.45);
-  /* Borders, separators and the background of hovered items. */
-  --cx-border: rgba(31, 34, 41, 0.14);
+    /* Text. */
+    --cx-fg: #1f2229;
+    --cx-fg-muted: rgba(31, 34, 41, 0.65);
+    --cx-fg-faint: rgba(31, 34, 41, 0.45);
+    /* Borders, separators and the background of hovered items. */
+    --cx-border: rgba(31, 34, 41, 0.14);
 
-  /* Accent: focus, primary buttons, where a dragged tab will go. */
-  --cx-accent: #157252;
-  --cx-on-accent: #ffffff;
-  --cx-accent-soft: rgba(21, 114, 82, 0.18);
+    /* Accent: focus, primary buttons, where a dragged tab will go. */
+    --cx-accent: #157252;
+    --cx-on-accent: #ffffff;
+    --cx-accent-soft: rgba(21, 114, 82, 0.18);
 
-  /* Close button of the window, as in Windows. */
-  --cx-danger: #e81123;
-  --cx-on-danger: #ffffff;
-  --cx-danger-pressed: #f1707a;
+    /* Close button of the window, as in Windows. */
+    --cx-danger: #e81123;
+    --cx-on-danger: #ffffff;
+    --cx-danger-pressed: #f1707a;
 
-  /* Under menus and notices, and behind dialogs. */
-  --cx-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
-  --cx-backdrop: rgba(0, 0, 0, 0.3);
+    /* Under menus and notices, and behind dialogs. */
+    --cx-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    --cx-backdrop: rgba(0, 0, 0, 0.3);
 
-  /* Terminals. The font is set in settings.json (terminal.fontFamily and fontSize). */
-  --cx-terminal-bg: #f7f5f0;
-  --cx-terminal-fg: #1f2229;
-  --cx-terminal-cursor: #157252;
-  --cx-terminal-cursor-text: #ffffff;
-  --cx-terminal-selection: rgba(21, 114, 82, 0.25);
+    /* Terminals. The font is set in settings.json (terminal.fontFamily and fontSize). */
+    --cx-terminal-bg: #f7f5f0;
+    --cx-terminal-fg: #1f2229;
+    --cx-terminal-cursor: #157252;
+    --cx-terminal-cursor-text: #ffffff;
+    --cx-terminal-selection: rgba(21, 114, 82, 0.25);
 
-  /* The 16 colors that programs use in the terminals. */
-  --cx-terminal-black: #1f2229;
-  --cx-terminal-red: #b8293f;
-  --cx-terminal-green: #157252;
-  --cx-terminal-yellow: #7d5a00;
-  --cx-terminal-blue: #1d5bb8;
-  --cx-terminal-magenta: #8a3fa6;
-  --cx-terminal-cyan: #0e6c7a;
-  --cx-terminal-white: #6b707b;
-  --cx-terminal-bright-black: #5b606b;
-  --cx-terminal-bright-red: #c42f48;
-  --cx-terminal-bright-green: #167a58;
-  --cx-terminal-bright-yellow: #876200;
-  --cx-terminal-bright-blue: #2a66c6;
-  --cx-terminal-bright-magenta: #9446b1;
-  --cx-terminal-bright-cyan: #0f7584;
-  --cx-terminal-bright-white: #8a8f99;
+    /* The 16 colors that programs use in the terminals. */
+    --cx-terminal-black: #1f2229;
+    --cx-terminal-red: #b8293f;
+    --cx-terminal-green: #157252;
+    --cx-terminal-yellow: #7d5a00;
+    --cx-terminal-blue: #1d5bb8;
+    --cx-terminal-magenta: #8a3fa6;
+    --cx-terminal-cyan: #0e6c7a;
+    --cx-terminal-white: #6b707b;
+    --cx-terminal-bright-black: #5b606b;
+    --cx-terminal-bright-red: #c42f48;
+    --cx-terminal-bright-green: #167a58;
+    --cx-terminal-bright-yellow: #876200;
+    --cx-terminal-bright-blue: #2a66c6;
+    --cx-terminal-bright-magenta: #9446b1;
+    --cx-terminal-bright-cyan: #0f7584;
+    --cx-terminal-bright-white: #8a8f99;
+  }
 }

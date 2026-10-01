@@ -72,6 +72,8 @@ The colors of ConsolX, for the interface and the terminals:
 | `"light"`          | light                                                                                                        |
 | `"system"`         | follow the light or dark mode of Windows (**Settings**, **Personalization**, **Colors**), and change with it |
 
+To change the colors further, see [Themes and user CSS](themes.md).
+
 ### terminal.fontFamily
 
 The font of the terminals: one or more font names, separated by commas. ConsolX uses the first one

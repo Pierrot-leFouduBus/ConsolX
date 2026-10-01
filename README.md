@@ -41,6 +41,7 @@ Windows may warn that the installer comes from an unknown publisher: see
 - [Tabs, panes and shells](docs/user/tabs-and-panes.md): how to work with terminals.
 - [Settings](docs/user/settings.md): the settings file and every setting.
 - [Keyboard shortcuts](docs/user/shortcuts.md): the shortcuts, and how to change them.
+- [Themes and user CSS](docs/user/themes.md): the light and dark themes, and your own styles.
 
 ## Contributing
 

@@ -2,27 +2,31 @@
    The rest of the styles only read these variables, so a theme changes the look by giving
    them other values. This file holds what every theme shares: fonts, sizes and shapes.
    The colors come from themes/dark.css and themes/light.css; the "theme" setting picks
-   one, through the data-theme attribute of the page. */
-:root {
-  /* Space around the text of the terminals. */
-  --cx-terminal-padding: 6px 8px;
+   one, through the data-theme attribute of the page.
+   The themes are in the "theme" cascade layer: styles outside any layer, such as the
+   user CSS file (user.css), win over them, whatever their selectors. */
+@layer theme {
+  :root {
+    /* Space around the text of the terminals. */
+    --cx-terminal-padding: 6px 8px;
 
-  /* Fonts of the interface. */
-  --cx-font: system-ui, sans-serif;
-  /* Tabs and status bar. */
-  --cx-font-size-small: 12px;
-  /* Menus and notices. */
-  --cx-font-size: 13px;
-  /* Dialogs, and their titles. */
-  --cx-font-size-large: 14px;
-  --cx-font-size-title: 16px;
+    /* Fonts of the interface. */
+    --cx-font: system-ui, sans-serif;
+    /* Tabs and status bar. */
+    --cx-font-size-small: 12px;
+    /* Menus and notices. */
+    --cx-font-size: 13px;
+    /* Dialogs, and their titles. */
+    --cx-font-size-large: 14px;
+    --cx-font-size-title: 16px;
 
-  /* Rounded corners: buttons and fields, menus, dialogs and notices. */
-  --cx-radius-small: 4px;
-  --cx-radius: 6px;
-  --cx-radius-large: 10px;
+    /* Rounded corners: buttons and fields, menus, dialogs and notices. */
+    --cx-radius-small: 4px;
+    --cx-radius: 6px;
+    --cx-radius-large: 10px;
 
-  /* Sizes. Three window buttons of 46px, as in Windows. */
-  --cx-tab-bar-height: 32px;
-  --cx-window-buttons-width: 138px;
+    /* Sizes. Three window buttons of 46px, as in Windows. */
+    --cx-tab-bar-height: 32px;
+    --cx-window-buttons-width: 138px;
+  }
 }

@@ -1,5 +1,6 @@
 // Themes: chosen in the settings file, applied at once to the interface and the terminals.
 import { writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { expect, terminals, test, TEST_SETTINGS } from './consolx'
 
 // Colors of themes/light.css, as the page computes them.
@@ -29,4 +30,22 @@ test('"system" follows the light or dark mode of Windows', async ({
 
   await window.emulateMedia({ colorScheme: 'dark' })
   await expect(page).toHaveAttribute('data-theme', 'dark')
+})
+
+test('applies the user CSS file on top of the theme, at once', async ({
+  consolx: { window, settingsFile }
+}) => {
+  // ConsolX creates user.css next to settings.json.
+  const userCssFile = join(dirname(settingsFile), 'user.css')
+  writeFileSync(
+    userCssFile,
+    ':root { --cx-terminal-bg: rgb(1, 2, 3); --cx-terminal-fg: rgb(200, 100, 50); }'
+  )
+  await expect(terminals(window).first()).toHaveCSS('background-color', 'rgb(1, 2, 3)')
+  await expect(window.locator('.xterm-rows').first()).toHaveCSS('color', 'rgb(200, 100, 50)')
+
+  // A plain :root rule wins over every theme, the light one too.
+  writeFileSync(settingsFile, JSON.stringify({ ...TEST_SETTINGS, theme: 'light' }))
+  await expect(window.locator('html')).toHaveAttribute('data-theme', 'light')
+  await expect(terminals(window).first()).toHaveCSS('background-color', 'rgb(1, 2, 3)')
 })

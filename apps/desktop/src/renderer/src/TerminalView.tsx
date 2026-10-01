@@ -35,7 +35,7 @@ export function TerminalView({
   // Latest onExit, read when the shell ends, so that it does not restart the terminal.
   const onExitRef = useRef(onExit)
   const { fontFamily, fontSize } = useSettings().terminal
-  const themeName = useContext(ThemeContext)
+  const colors = useContext(ThemeContext)
   // Latest font, read when the terminal is created.
   const fontRef = useRef({ fontFamily, fontSize })
 
@@ -126,12 +126,12 @@ export function TerminalView({
     fitAddonRef.current?.fit()
   }, [fontFamily, fontSize])
 
-  // Give xterm.js the colors of a new theme: it draws the terminal itself and does not
-  // read CSS. The page already shows the new theme when this runs.
+  // Give xterm.js the new colors of a theme or of the user CSS file: it draws the
+  // terminal itself and does not read CSS. The page already has them when this runs.
   useEffect(() => {
     const terminal = terminalRef.current
     if (terminal) terminal.options.theme = terminalTheme()
-  }, [themeName])
+  }, [colors])
 
   // Give the keyboard to the terminal when it becomes the active one, or when asked.
   // Declared after the effect above, so that it also runs once the terminal exists.

@@ -9,6 +9,9 @@ as the notes of its GitHub release.
 
 - A light theme, and the `theme` setting to choose the colors of ConsolX: `"dark"`, `"light"`,
   or `"system"` to follow the light or dark mode of Windows.
+- A user CSS file, `%APPDATA%\ConsolX\user.css`: CSS applied on top of the theme as soon as it
+  is saved. It changes the look of ConsolX through the theme variables, listed in the
+  [user guide](https://github.com/Pierrot-leFouduBus/ConsolX/blob/main/docs/user/themes.md).
 
 ## [1.0.0] - 2026-10-01
 

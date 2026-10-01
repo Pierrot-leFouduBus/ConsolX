@@ -69,6 +69,8 @@ export interface SettingsState {
   settings: Settings
   // What is wrong in the settings file; empty when it is fine.
   problems: string[]
+  // Content of the user CSS file (user.css), applied on top of the theme.
+  userCss: string
 }
 
 export interface SettingsApi {

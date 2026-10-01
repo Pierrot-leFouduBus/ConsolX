@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { defaultSettings } from '../shared/settings'
 import { SettingsStore } from './settings-store'
+import { NEW_USER_CSS_FILE } from './user-css'
 
 describe('SettingsStore', () => {
   let folder: string
@@ -52,8 +53,29 @@ describe('SettingsStore', () => {
     expect(await store.reload()).toBe(true)
     expect(store.current).toEqual({
       settings: { ...defaultSettings, closeOnExit: 'always' },
-      problems: []
+      problems: [],
+      userCss: NEW_USER_CSS_FILE
     })
+  })
+
+  it('creates a user CSS file where every example is in a comment', async () => {
+    const store = new SettingsStore(folder)
+    const state = await store.load()
+
+    expect(await readFile(store.userCssFile, 'utf8')).toBe(NEW_USER_CSS_FILE)
+    expect(state.userCss).toBe(NEW_USER_CSS_FILE)
+    // Once the comments are removed, nothing is left.
+    expect(NEW_USER_CSS_FILE.replace(/\/\*[\s\S]*?\*\//g, '').trim()).toBe('')
+  })
+
+  it('keeps an existing user CSS file, and reads it again when it changes', async () => {
+    const store = new SettingsStore(folder)
+    await writeFile(store.userCssFile, ':root { --cx-accent: red; }')
+    expect((await store.load()).userCss).toBe(':root { --cx-accent: red; }')
+
+    await writeFile(store.userCssFile, ':root { --cx-accent: blue; }')
+    expect(await store.reload()).toBe(true)
+    expect(store.current.userCss).toBe(':root { --cx-accent: blue; }')
   })
 
   it('tells when a read changes nothing', async () => {
