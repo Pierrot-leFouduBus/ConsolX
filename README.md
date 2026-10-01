@@ -13,6 +13,8 @@ is not tested yet.
 - **Tabs and split panes**: open as many terminals as you need, split them side by side or one
   above the other, and drag tabs to arrange them.
 - **Keyboard shortcuts**: the shortcuts of Windows Terminal by default, and you can change them.
+- **Your look**: a dark and a light theme, or the mode of Windows; your own colors and styles in a
+  CSS file; a translucent window, the desktop blurred behind it.
 - **One settings file**: plain text, with every setting explained inside; changes apply as soon as
   you save.
 - **Automatic updates**: ConsolX tells you when a new version is out and installs it for you.
