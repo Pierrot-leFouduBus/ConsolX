@@ -47,6 +47,12 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      # The notes of the release are the section of the version in CHANGELOG.md. Fails
+      # when there is none, before anything is published.
+      - name: Read the release notes
+        shell: bash
+        run: node apps/desktop/scripts/release-notes.mjs "${GITHUB_REF_NAME#v}" > release-notes.md
+
       # Create the release as a draft first, so that electron-builder uploads all its files
       # to it. Left to itself, electron-builder can create the same release twice.
       - name: Create a draft release
@@ -54,7 +60,7 @@ jobs:
         run: |
           gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 ||
             gh release create "$GITHUB_REF_NAME" --draft --verify-tag \
-              --title "${GITHUB_REF_NAME#v}" --generate-notes
+              --title "${GITHUB_REF_NAME#v}" --notes-file release-notes.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
