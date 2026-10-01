@@ -14,6 +14,10 @@ const api: ConsolxApi = {
     isMaximized: () => ipcRenderer.invoke(IpcChannel.windowIsMaximized),
     onMaximizedChange: (listener) => subscribe(IpcChannel.windowMaximizedChange, listener)
   },
+  clipboard: {
+    readText: () => ipcRenderer.invoke(IpcChannel.clipboardReadText),
+    writeText: (text) => ipcRenderer.send(IpcChannel.clipboardWriteText, text)
+  },
   settings: {
     getState: () => ipcRenderer.invoke(IpcChannel.settingsGetState),
     open: () => ipcRenderer.send(IpcChannel.settingsOpen),

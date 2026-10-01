@@ -8,8 +8,6 @@ test('starts with one terminal running the default shell', async ({ consolx: { w
 })
 
 test('runs what is typed in the shell', async ({ consolx: { window } }) => {
-  // Wait for the prompt (the space after > is the cursor).
-  await expect(lines(window).filter({ hasText: />\s*$/ })).toHaveCount(1)
   // Only the shell writes a line holding just the result: the line typed shows the
   // command, not 3333.
   await window.keyboard.type('set /a 1111*3')

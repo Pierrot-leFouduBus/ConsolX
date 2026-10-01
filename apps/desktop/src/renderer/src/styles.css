@@ -227,6 +227,9 @@ html {
 }
 
 .menu button {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   padding: 6px 10px;
   border: none;
   border-radius: var(--cx-radius-small);
@@ -356,4 +359,12 @@ button:focus-visible {
   margin: 0 0 12px;
   padding-left: 18px;
   color: var(--cx-fg-muted);
+}
+
+/* Shortcut of a menu entry, at its right. */
+.menu-shortcut {
+  margin-left: 24px;
+  color: var(--cx-fg-muted);
+  font: inherit;
+  font-size: var(--cx-font-size-small);
 }

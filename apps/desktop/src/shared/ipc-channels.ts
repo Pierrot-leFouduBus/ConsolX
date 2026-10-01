@@ -2,6 +2,8 @@
 export const IpcChannel = {
   // UI -> main
   getAppInfo: 'app:get-info',
+  clipboardReadText: 'clipboard:read-text',
+  clipboardWriteText: 'clipboard:write-text',
   settingsGetState: 'settings:get-state',
   settingsOpen: 'settings:open',
   terminalGetProfiles: 'terminal:get-profiles',

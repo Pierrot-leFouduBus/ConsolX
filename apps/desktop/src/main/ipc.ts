@@ -3,13 +3,14 @@
 import {
   app,
   BrowserWindow,
+  clipboard,
   ipcMain,
-  shell,
   type IpcMainEvent,
   type IpcMainInvokeEvent
 } from 'electron'
 import { homedir } from 'node:os'
 import { IpcChannel } from '../shared/ipc-channels'
+import { openFile } from './open-file'
 import type { SettingsStore } from './settings-store'
 import { shellEnvironment } from './shell-env'
 import { defaultProfileId, detectShellProfiles } from './shell-profiles'
@@ -31,7 +32,7 @@ export function registerIpcHandlers(
     await settingsLoaded
     return settings.current
   })
-  ipcMain.on(IpcChannel.settingsOpen, () => void shell.openPath(settings.file))
+  ipcMain.on(IpcChannel.settingsOpen, () => void openFile(settings.file))
 
   // Window buttons: each acts on the window of the page that sent it.
   ipcMain.on(IpcChannel.windowMinimize, (event) => windowOf(event)?.minimize())
@@ -41,6 +42,11 @@ export function registerIpcHandlers(
   })
   ipcMain.on(IpcChannel.windowClose, (event) => windowOf(event)?.close())
   ipcMain.handle(IpcChannel.windowIsMaximized, (event) => windowOf(event)?.isMaximized() ?? false)
+
+  ipcMain.handle(IpcChannel.clipboardReadText, () => clipboard.readText())
+  ipcMain.on(IpcChannel.clipboardWriteText, (_event, text: unknown) => {
+    if (typeof text === 'string') clipboard.writeText(text)
+  })
 
   ipcMain.handle(IpcChannel.updateGetState, () => getUpdateState())
   ipcMain.on(IpcChannel.updateDownload, () => downloadUpdate())

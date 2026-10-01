@@ -3,10 +3,11 @@
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import type { ShellProfile } from '../../shared/consolx-api'
-import { defaultShell, openTerminal, ShellsContext, type TerminalParams } from './terminals'
+import type { Shortcut } from '../../shared/shortcuts'
+import { defaultShell, openTerminal, ShellsContext, splitTerminal } from './terminals'
 import { useSettings } from './useSettings'
 
-export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewHeaderActionsProps) {
+export function NewTerminalMenu({ containerApi, group }: IDockviewHeaderActionsProps) {
   const shells = useContext(ShellsContext)
   const settings = useSettings()
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -45,14 +46,9 @@ export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewH
     openTerminal(containerApi, profile, { referenceGroup: group })
   }
 
-  // A split runs the same shell as the active tab of the group.
   const split = (direction: 'right' | 'below') => {
     setPosition(null)
-    const activeId = (activePanel?.params as TerminalParams | undefined)?.profileId
-    const profile =
-      shells.profiles.find((shell) => shell.id === activeId) ??
-      defaultShell(shells, settings.defaultProfile)
-    if (profile) openTerminal(containerApi, profile, { referenceGroup: group, direction })
+    splitTerminal(containerApi, shells, settings.defaultProfile, group, direction)
   }
 
   const openSettings = () => {
@@ -76,23 +72,53 @@ export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewH
       {position && (
         <div ref={menuRef} className="menu" role="menu" style={position}>
           {shells.profiles.map((profile) => (
-            <button key={profile.id} type="button" role="menuitem" onClick={() => newTab(profile)}>
-              {profile.name}
-            </button>
+            <MenuItem
+              key={profile.id}
+              label={profile.name}
+              // The new tab shortcut opens the default shell.
+              shortcut={
+                profile === defaultShell(shells, settings.defaultProfile)
+                  ? settings.keys.newTab
+                  : null
+              }
+              onClick={() => newTab(profile)}
+            />
           ))}
           <div className="menu-separator" role="separator" />
-          <button type="button" role="menuitem" onClick={() => split('right')}>
-            Split right
-          </button>
-          <button type="button" role="menuitem" onClick={() => split('below')}>
-            Split down
-          </button>
+          <MenuItem
+            label="Split right"
+            shortcut={settings.keys.splitRight}
+            onClick={() => split('right')}
+          />
+          <MenuItem
+            label="Split down"
+            shortcut={settings.keys.splitDown}
+            onClick={() => split('below')}
+          />
           <div className="menu-separator" role="separator" />
-          <button type="button" role="menuitem" onClick={openSettings}>
-            Settings
-          </button>
+          <MenuItem label="Settings" shortcut={settings.keys.openSettings} onClick={openSettings} />
         </div>
       )}
     </div>
+  )
+}
+
+interface MenuItemProps {
+  label: string
+  // Shown at the right of the entry; null when the action has no shortcut.
+  shortcut: Shortcut | null
+  onClick(): void
+}
+
+function MenuItem({ label, shortcut, onClick }: MenuItemProps) {
+  return (
+    <button type="button" role="menuitem" aria-keyshortcuts={shortcut?.label} onClick={onClick}>
+      {label}
+      {shortcut && (
+        <kbd className="menu-shortcut" aria-hidden="true">
+          {shortcut.label}
+        </kbd>
+      )}
+    </button>
   )
 }

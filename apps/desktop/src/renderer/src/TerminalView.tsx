@@ -4,10 +4,13 @@ import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 import { ConptyScrollFix } from '../../shared/windows-pty'
+import { xterms } from './terminals'
 import { terminalTheme } from './terminalTheme'
 import { useSettings } from './useSettings'
 
 interface TerminalViewProps {
+  // Id of the panel showing the terminal.
+  panelId: string
   // Shell to start; null for the default one.
   profileId: string | null
   // Whether the terminal is the one the user works in: it then gets the keyboard.
@@ -18,7 +21,13 @@ interface TerminalViewProps {
   onExit(exitCode: number): void
 }
 
-export function TerminalView({ profileId, active, focusRequests, onExit }: TerminalViewProps) {
+export function TerminalView({
+  panelId,
+  profileId,
+  active,
+  focusRequests,
+  onExit
+}: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const terminalRef = useRef<Terminal>(null)
   const fitAddonRef = useRef<FitAddon>(null)
@@ -52,6 +61,7 @@ export function TerminalView({ profileId, active, focusRequests, onExit }: Termi
     fitAddon.fit()
     terminalRef.current = terminal
     fitAddonRef.current = fitAddon
+    xterms.set(panelId, terminal)
 
     // Id of the shell's terminal in the main process, known once it has started.
     let id: number | undefined
@@ -98,9 +108,10 @@ export function TerminalView({ profileId, active, focusRequests, onExit }: Termi
       if (id !== undefined) api.kill(id)
       terminalRef.current = null
       fitAddonRef.current = null
+      xterms.delete(panelId)
       terminal.dispose()
     }
-  }, [profileId])
+  }, [panelId, profileId])
 
   // Apply a new font from the settings, then fit the terminal to it.
   useEffect(() => {

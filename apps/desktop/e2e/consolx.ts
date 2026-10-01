@@ -2,6 +2,7 @@
 // the test the app and its window.
 import {
   _electron as electron,
+  expect,
   test as base,
   type ElectronApplication,
   type Locator,
@@ -17,17 +18,19 @@ const appDir = resolve(__dirname, '..')
 export interface ConsolX {
   app: ElectronApplication
   window: Page
+  // The settings file of this test: writing it changes the settings of the app.
+  settingsFile: string
 }
+
+// Settings of every test: Command Prompt starts fast and exists on every Windows.
+export const TEST_SETTINGS = { defaultProfile: 'Command Prompt' }
 
 export const test = base.extend<{ consolx: ConsolX }>({
   // eslint-disable-next-line no-empty-pattern -- Playwright needs the fixtures argument
   consolx: async ({}, use) => {
-    // Command Prompt starts fast and exists on every Windows.
     const userData = mkdtempSync(join(tmpdir(), 'consolx-e2e-'))
-    writeFileSync(
-      join(userData, 'settings.json'),
-      JSON.stringify({ defaultProfile: 'Command Prompt' })
-    )
+    const settingsFile = join(userData, 'settings.json')
+    writeFileSync(settingsFile, JSON.stringify(TEST_SETTINGS))
 
     const app = await electron.launch({
       // Keep drawing the window when other windows cover it.
@@ -35,8 +38,11 @@ export const test = base.extend<{ consolx: ConsolX }>({
       env: { ...process.env, CONSOLX_USER_DATA_DIR: userData }
     })
     const window = await app.firstWindow()
+    // Ready once the shell shows its prompt: the shortcuts listen by then too.
+    // The space after > is the cursor.
+    await expect(lines(window).filter({ hasText: />\s*$/ })).toHaveCount(1)
 
-    await use({ app, window })
+    await use({ app, window, settingsFile })
 
     // Some tests close the app themselves.
     await app.close().catch(() => undefined)

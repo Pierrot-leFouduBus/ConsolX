@@ -90,9 +90,16 @@ export interface AppWindowApi {
   onMaximizedChange(listener: (maximized: boolean) => void): Unsubscribe
 }
 
+// The system clipboard, for copy and paste in terminals.
+export interface ClipboardApi {
+  readText(): Promise<string>
+  writeText(text: string): void
+}
+
 export interface ConsolxApi {
   getAppInfo(): Promise<AppInfo>
   appWindow: AppWindowApi
+  clipboard: ClipboardApi
   settings: SettingsApi
   terminal: TerminalApi
   updates: UpdatesApi

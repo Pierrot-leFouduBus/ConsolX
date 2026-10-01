@@ -9,6 +9,21 @@ import {
   type ParseErrorCode
 } from 'jsonc-parser'
 import { z } from 'zod'
+import { parseShortcut, SHORTCUT_ACTIONS, type Shortcut, type ShortcutAction } from './shortcuts'
+
+// One setting per shortcut, "keys.newTab" for example. "" turns the shortcut off.
+const shortcutSettings = Object.fromEntries(
+  SHORTCUT_ACTIONS.map((action) => [
+    `keys.${action.id}`,
+    z
+      .string()
+      .refine((text) => text.trim() === '' || parseShortcut(text) !== undefined, {
+        message: 'not a shortcut: write it like "Ctrl+Shift+T", or "" to turn it off'
+      })
+      .default(action.keys)
+      .describe(action.description)
+  ])
+) as Record<`keys.${ShortcutAction}`, z.ZodDefault<z.ZodString>>
 
 // The file holds one setting per line, as in VS Code: a group of settings is a prefix of
 // their names ("terminal."), not a nested object, so that using a setting only takes
@@ -39,14 +54,19 @@ const settingsFileSchema = z.strictObject({
     .min(6)
     .max(72)
     .default(14)
-    .describe('Font size of the terminals, in pixels.')
+    .describe('Font size of the terminals, in pixels.'),
+  ...shortcutSettings
 })
 
 // The settings as the app uses them, grouped.
 export const settingsSchema = settingsFileSchema.transform((file) => ({
   defaultProfile: file.defaultProfile,
   closeOnExit: file.closeOnExit,
-  terminal: { fontFamily: file['terminal.fontFamily'], fontSize: file['terminal.fontSize'] }
+  terminal: { fontFamily: file['terminal.fontFamily'], fontSize: file['terminal.fontSize'] },
+  // Each action with its shortcut, or null when it has none.
+  keys: Object.fromEntries(
+    SHORTCUT_ACTIONS.map(({ id }) => [id, parseShortcut(file[`keys.${id}`]) ?? null])
+  ) as Record<ShortcutAction, Shortcut | null>
 }))
 
 export type Settings = z.output<typeof settingsSchema>
@@ -81,6 +101,7 @@ export function newSettingsFile(schemaFile: string): string {
   return [
     '// ConsolX settings. To change a setting, remove the // in front of it and edit its',
     '// value. ConsolX reads the file again each time you save it.',
+    '// Shortcuts ("keys." settings) are written like "Ctrl+Shift+T"; "" turns one off.',
     '{',
     ...settings.slice(1),
     '',

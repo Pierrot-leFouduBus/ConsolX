@@ -3,6 +3,7 @@
 import {
   DockviewReact,
   themeDark,
+  type DockviewApi,
   type DockviewReadyEvent,
   type IDockviewPanelProps
 } from 'dockview-react'
@@ -15,6 +16,7 @@ import { TerminalView } from './TerminalView'
 import { defaultShell, openTerminal, ShellsContext, type TerminalParams } from './terminals'
 import { trackTitleBar } from './titleBar'
 import { useSettings } from './useSettings'
+import { useShortcuts } from './useShortcuts'
 
 // Content of a terminal panel.
 function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
@@ -34,6 +36,7 @@ function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
 
   return (
     <TerminalView
+      panelId={api.id}
       profileId={params.profileId}
       active={active}
       focusRequests={focusRequests}
@@ -56,8 +59,12 @@ interface WorkspaceProps {
 
 export function Workspace({ shells }: WorkspaceProps) {
   const { defaultProfile } = useSettings()
+  // The workspace once dockview has created it, for the shortcuts.
+  const [api, setApi] = useState<DockviewApi>()
+  useShortcuts(api, shells)
 
   const onReady = ({ api }: DockviewReadyEvent) => {
+    setApi(api)
     const shell = defaultShell(shells, defaultProfile)
     if (shell) openTerminal(api, shell)
     trackTitleBar(api)
