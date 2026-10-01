@@ -62,6 +62,16 @@ What happens to a tab when its shell ends by itself, after `exit` for example:
 | `"always"`             | always closes                                                          |
 | `"never"`              | always stays open, with the exit code of the shell                     |
 
+### theme
+
+The colors of ConsolX, for the interface and the terminals:
+
+| Value              | Colors                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `"dark"` (default) | dark                                                                                                         |
+| `"light"`          | light                                                                                                        |
+| `"system"`         | follow the light or dark mode of Windows (**Settings**, **Personalization**, **Colors**), and change with it |
+
 ### terminal.fontFamily
 
 The font of the terminals: one or more font names, separated by commas. ConsolX uses the first one

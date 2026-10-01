@@ -7,6 +7,7 @@ import { findShell } from './terminals'
 import { UpdatePrompt } from './UpdatePrompt'
 import { UpdateToast } from './UpdateToast'
 import { SettingsContext, useSettingsState } from './useSettings'
+import { ThemeContext, useTheme } from './useTheme'
 import { useUpdateState } from './useUpdateState'
 import { WindowButtons } from './WindowButtons'
 import { Workspace } from './Workspace'
@@ -23,6 +24,7 @@ export function App() {
   const settingsState = useSettingsState()
   // Problems whose notice the user closed; it comes back when they change.
   const [problemsClosed, setProblemsClosed] = useState<string>()
+  const theme = useTheme(settingsState?.settings.theme)
 
   useEffect(() => {
     void window.consolx.getAppInfo().then((info) => {
@@ -47,7 +49,9 @@ export function App() {
         settingsState &&
         (shells.profiles.length > 0 ? (
           <SettingsContext.Provider value={settingsState.settings}>
-            <Workspace shells={shells} />
+            <ThemeContext.Provider value={theme}>
+              <Workspace shells={shells} />
+            </ThemeContext.Provider>
           </SettingsContext.Provider>
         ) : (
           <p className="no-shell">No shell was found on this computer.</p>

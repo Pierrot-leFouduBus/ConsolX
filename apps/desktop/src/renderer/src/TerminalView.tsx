@@ -2,10 +2,11 @@
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { ConptyScrollFix } from '../../shared/windows-pty'
 import { xterms } from './terminals'
 import { terminalTheme } from './terminalTheme'
+import { ThemeContext } from './useTheme'
 import { useSettings } from './useSettings'
 
 interface TerminalViewProps {
@@ -34,6 +35,7 @@ export function TerminalView({
   // Latest onExit, read when the shell ends, so that it does not restart the terminal.
   const onExitRef = useRef(onExit)
   const { fontFamily, fontSize } = useSettings().terminal
+  const themeName = useContext(ThemeContext)
   // Latest font, read when the terminal is created.
   const fontRef = useRef({ fontFamily, fontSize })
 
@@ -123,6 +125,13 @@ export function TerminalView({
     terminal.options.fontSize = fontSize
     fitAddonRef.current?.fit()
   }, [fontFamily, fontSize])
+
+  // Give xterm.js the colors of a new theme: it draws the terminal itself and does not
+  // read CSS. The page already shows the new theme when this runs.
+  useEffect(() => {
+    const terminal = terminalRef.current
+    if (terminal) terminal.options.theme = terminalTheme()
+  }, [themeName])
 
   // Give the keyboard to the terminal when it becomes the active one, or when asked.
   // Declared after the effect above, so that it also runs once the terminal exists.

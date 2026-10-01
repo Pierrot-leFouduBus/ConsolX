@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 // The theme first: the styles read its variables.
 import './theme.css'
+import './themes/dark.css'
+import './themes/light.css'
 import './styles.css'
 
 const root = document.getElementById('root')

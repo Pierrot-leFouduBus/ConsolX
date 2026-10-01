@@ -3,6 +3,13 @@
 What changes in each version of ConsolX. The release workflow publishes the section of a version
 as the notes of its GitHub release.
 
+## [Unreleased]
+
+### Added
+
+- A light theme, and the `theme` setting to choose the colors of ConsolX: `"dark"`, `"light"`,
+  or `"system"` to follow the light or dark mode of Windows.
+
 ## [1.0.0] - 2026-10-01
 
 The first stable version of ConsolX: a terminal for Windows that brings your shells together in

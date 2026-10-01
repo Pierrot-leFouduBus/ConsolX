@@ -44,6 +44,12 @@ const settingsFileSchema = z.strictObject({
     .describe(
       'Whether a tab closes when its shell ends: graceful (only when it ends without error), always or never.'
     ),
+  theme: z
+    .enum(['dark', 'light', 'system'])
+    .default('dark')
+    .describe(
+      'Colors of ConsolX: dark, light, or system to follow the light or dark mode of Windows.'
+    ),
   'terminal.fontFamily': z
     .string()
     .min(1)
@@ -62,6 +68,7 @@ const settingsFileSchema = z.strictObject({
 export const settingsSchema = settingsFileSchema.transform((file) => ({
   defaultProfile: file.defaultProfile,
   closeOnExit: file.closeOnExit,
+  theme: file.theme,
   terminal: { fontFamily: file['terminal.fontFamily'], fontSize: file['terminal.fontSize'] },
   // Each action with its shortcut, or null when it has none.
   keys: Object.fromEntries(
@@ -70,6 +77,7 @@ export const settingsSchema = settingsFileSchema.transform((file) => ({
 }))
 
 export type Settings = z.output<typeof settingsSchema>
+export type ThemeSetting = Settings['theme']
 
 export const defaultSettings: Settings = settingsSchema.parse({})
 

@@ -23,6 +23,7 @@ describe('readSettings', () => {
     const text = JSON.stringify({
       defaultProfile: 'Git Bash',
       closeOnExit: 'never',
+      theme: 'system',
       'terminal.fontFamily': 'Consolas',
       'terminal.fontSize': 12,
       'keys.newTab': 'Ctrl+Alt+N',
@@ -31,6 +32,7 @@ describe('readSettings', () => {
     expect(readSettings(text).settings).toEqual({
       defaultProfile: 'Git Bash',
       closeOnExit: 'never',
+      theme: 'system',
       terminal: { fontFamily: 'Consolas', fontSize: 12 },
       keys: { ...defaultSettings.keys, newTab: parseShortcut('Ctrl+Alt+N'), closeTab: null }
     })
@@ -101,6 +103,7 @@ describe('settingsJsonSchema', () => {
       '$schema',
       'defaultProfile',
       'closeOnExit',
+      'theme',
       'terminal.fontFamily',
       'terminal.fontSize',
       'keys.newTab',
