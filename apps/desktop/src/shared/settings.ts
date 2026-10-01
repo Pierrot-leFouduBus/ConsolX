@@ -1,10 +1,19 @@
 // What the user can set in settings.json, the default values, and how the file is read:
 // JSON with comments, checked against a zod schema. Each description is shown by editors
 // through the JSON schema made from it.
-import { parse, printParseErrorCode, stripComments, type ParseError } from 'jsonc-parser'
+import {
+  parse,
+  printParseErrorCode,
+  stripComments,
+  type ParseError,
+  type ParseErrorCode
+} from 'jsonc-parser'
 import { z } from 'zod'
 
-export const settingsSchema = z.strictObject({
+// The file holds one setting per line, as in VS Code: a group of settings is a prefix of
+// their names ("terminal."), not a nested object, so that using a setting only takes
+// removing the // in front of its line.
+const settingsFileSchema = z.strictObject({
   // Link to the JSON schema, which gives editors completion and descriptions.
   $schema: z.string().optional(),
   defaultProfile: z
@@ -18,25 +27,27 @@ export const settingsSchema = z.strictObject({
     .enum(['graceful', 'always', 'never'])
     .default('graceful')
     .describe(
-      'Whether a tab closes when its shell ends: "graceful" when it ends without error, "always", or "never".'
+      'Whether a tab closes when its shell ends: graceful (only when it ends without error), always or never.'
     ),
-  terminal: z
-    .strictObject({
-      fontFamily: z
-        .string()
-        .min(1)
-        .default('"Cascadia Mono", Consolas, monospace')
-        .describe('Font of the terminals: one or more font names, separated by commas.'),
-      fontSize: z
-        .number()
-        .min(6)
-        .max(72)
-        .default(14)
-        .describe('Font size of the terminals, in pixels.')
-    })
-    .prefault({})
-    .describe('How the terminals look.')
+  'terminal.fontFamily': z
+    .string()
+    .min(1)
+    .default('"Cascadia Mono", Consolas, monospace')
+    .describe('Font of the terminals: one or more font names, separated by commas.'),
+  'terminal.fontSize': z
+    .number()
+    .min(6)
+    .max(72)
+    .default(14)
+    .describe('Font size of the terminals, in pixels.')
 })
+
+// The settings as the app uses them, grouped.
+export const settingsSchema = settingsFileSchema.transform((file) => ({
+  defaultProfile: file.defaultProfile,
+  closeOnExit: file.closeOnExit,
+  terminal: { fontFamily: file['terminal.fontFamily'], fontSize: file['terminal.fontSize'] }
+}))
 
 export type Settings = z.output<typeof settingsSchema>
 
@@ -60,39 +71,24 @@ export function settingsJsonSchema(): JsonSchema {
 // updates, and removing the // in front of a setting uses it. Each setting ends with a
 // comma, and "$schema" comes last, so any of them can be used without editing commas.
 export function newSettingsFile(schemaFile: string): string {
+  const settings = Object.entries(settingsJsonSchema().properties ?? {})
+    .filter(([name]) => name !== '$schema')
+    .flatMap(([name, setting]) => [
+      '',
+      ...wrap(setting.description ?? '').map((line) => `  // ${line}`),
+      `  // "${name}": ${JSON.stringify(setting.default ?? setting.examples?.[0])},`
+    ])
   return [
     '// ConsolX settings. To change a setting, remove the // in front of it and edit its',
     '// value. ConsolX reads the file again each time you save it.',
     '{',
-    ...settingLines(settingsJsonSchema(), '  ', false).slice(1),
+    ...settings.slice(1),
     '',
     '  // Lets editors such as VS Code suggest and check the settings.',
     `  "$schema": "./${schemaFile}"`,
     '}',
     ''
   ].join('\n')
-}
-
-// Lines of the settings of a schema. Inside a commented-out object (nested), the lines
-// are already commented by their lead.
-function settingLines(schema: JsonSchema, lead: string, nested: boolean): string[] {
-  const entries = Object.entries(schema.properties ?? {}).filter(([key]) => key !== '$schema')
-  const mark = nested ? '' : '// '
-  return entries.flatMap(([key, setting], index) => {
-    const comma = !nested || index < entries.length - 1 ? ',' : ''
-    const lines = ['', ...wrap(setting.description ?? '').map((line) => `${lead}// ${line}`)]
-    if (setting.properties) {
-      const inner = nested ? `${lead}  ` : `${lead}//   `
-      return [
-        ...lines,
-        `${lead}${mark}"${key}": {`,
-        ...settingLines(setting, inner, true).filter((line) => line !== ''),
-        `${lead}${mark}}${comma}`
-      ]
-    }
-    const value = setting.default ?? setting.examples?.[0]
-    return [...lines, `${lead}${mark}"${key}": ${JSON.stringify(value)}${comma}`]
-  })
 }
 
 // Splits a text into lines of at most 80 characters.
@@ -125,7 +121,7 @@ export function readSettings(text: string): SettingsFileContent {
   const value: unknown = parse(json, errors, { allowTrailingComma: true })
   if (errors.length > 0) {
     const problems = errors.map(
-      ({ error, offset }) => `${printParseErrorCode(error)} at line ${lineAt(json, offset)}`
+      ({ error, offset }) => `Line ${lineAt(json, offset)}: ${syntaxProblem(error)}`
     )
     return { settings: undefined, problems }
   }
@@ -142,4 +138,22 @@ export function readSettings(text: string): SettingsFileContent {
 
 function lineAt(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length
+}
+
+// The most common mistakes, said plainly, by the name jsonc-parser gives them.
+const SYNTAX_PROBLEMS: Record<string, string> = {
+  CommaExpected: 'a comma is missing',
+  CloseBraceExpected: 'a closing } is missing',
+  ColonExpected: 'a colon (:) is missing after the setting name',
+  ValueExpected: 'a value is missing',
+  PropertyNameExpected: 'a setting name, in double quotes, is expected',
+  EndOfFileExpected: 'there is text after the final }',
+  UnexpectedEndOfString: 'a text is not closed by a double quote',
+  UnexpectedEndOfComment: 'a comment is not closed',
+  InvalidSymbol: 'unexpected character'
+}
+
+function syntaxProblem(error: ParseErrorCode): string {
+  const name = printParseErrorCode(error)
+  return SYNTAX_PROBLEMS[name] ?? name
 }

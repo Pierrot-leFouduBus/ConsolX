@@ -26,16 +26,16 @@ describe('SettingsStore', () => {
     const schema = JSON.parse(
       await readFile(join(folder, 'ConsolX', 'settings.schema.json'), 'utf8')
     )
-    expect(schema.properties.terminal).toBeDefined()
+    expect(schema.properties['terminal.fontSize']).toBeDefined()
   })
 
   it('keeps an existing settings file', async () => {
     const store = new SettingsStore(folder)
-    await writeFile(store.file, '{ "terminal": { "fontSize": 18 } }')
+    await writeFile(store.file, '{ "terminal.fontSize": 18 }')
     const state = await store.load()
 
     expect(state.settings.terminal.fontSize).toBe(18)
-    expect(await readFile(store.file, 'utf8')).toBe('{ "terminal": { "fontSize": 18 } }')
+    expect(await readFile(store.file, 'utf8')).toBe('{ "terminal.fontSize": 18 }')
   })
 
   it('keeps the last good settings while the file has a problem', async () => {

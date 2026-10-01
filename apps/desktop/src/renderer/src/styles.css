@@ -331,11 +331,13 @@ button:focus-visible {
 }
 
 /* Notices (update ready, settings problem): a bubble in the bottom right corner, above
-   the status bar. */
+   the status bar. The z-index keeps it above the terminals (dockview paints them in
+   overlays with their own z-index) but below the + menu. */
 .toast {
   position: fixed;
   right: 16px;
   bottom: 36px;
+  z-index: 950;
   max-width: 320px;
   padding: 14px 16px;
   border: 1px solid var(--cx-border);
