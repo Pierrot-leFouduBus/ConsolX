@@ -1,8 +1,10 @@
 // Main process: creates the window and manages the app lifecycle.
 import { app, BrowserWindow, Menu } from 'electron'
 import { join } from 'node:path'
+import { IpcChannel } from '../shared/ipc-channels'
 import { registerIpcHandlers } from './ipc'
 import { getRendererSource } from './renderer-source'
+import { SettingsStore } from './settings-store'
 import { TerminalManager } from './terminal-manager'
 import { startAutoUpdate } from './updater'
 import { setUpFrame } from './window-frame'
@@ -19,7 +21,15 @@ if (!app.isPackaged && debuggingPort) {
 Menu.setApplicationMenu(null)
 
 const terminals = new TerminalManager()
-registerIpcHandlers(terminals)
+
+// Read the settings right away, for the first window. If the file cannot be read or
+// written, the default settings are used.
+const settings = new SettingsStore(app.getPath('userData'))
+const settingsLoaded = settings.load().catch((error: unknown) => {
+  console.error('Cannot load the settings:', error)
+})
+
+registerIpcHandlers(terminals, settings, settingsLoaded)
 
 function createWindow(): void {
   const window = new BrowserWindow({
@@ -80,6 +90,15 @@ void app.whenReady().then(() => {
   createWindow()
   startAutoUpdate()
 
+  // Apply each change of the settings file to every window at once.
+  void settingsLoaded.then(() =>
+    settings.watch((state) => {
+      for (const window of BrowserWindow.getAllWindows()) {
+        window.webContents.send(IpcChannel.settingsState, state)
+      }
+    })
+  )
+
   // macOS: re-create a window when the dock icon is clicked and none is open.
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -92,4 +111,7 @@ app.on('window-all-closed', () => {
 })
 
 // Never leave shells running after the app quits.
-app.on('will-quit', () => terminals.killAll())
+app.on('will-quit', () => {
+  terminals.killAll()
+  settings.close()
+})

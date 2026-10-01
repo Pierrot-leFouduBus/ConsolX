@@ -14,6 +14,11 @@ const api: ConsolxApi = {
     isMaximized: () => ipcRenderer.invoke(IpcChannel.windowIsMaximized),
     onMaximizedChange: (listener) => subscribe(IpcChannel.windowMaximizedChange, listener)
   },
+  settings: {
+    getState: () => ipcRenderer.invoke(IpcChannel.settingsGetState),
+    open: () => ipcRenderer.send(IpcChannel.settingsOpen),
+    onState: (listener) => subscribe(IpcChannel.settingsState, listener)
+  },
   terminal: {
     windowsPty: process.platform === 'win32' ? windowsPty(process.getSystemVersion()) : undefined,
     getProfiles: () => ipcRenderer.invoke(IpcChannel.terminalGetProfiles),

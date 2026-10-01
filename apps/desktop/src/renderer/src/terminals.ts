@@ -28,7 +28,26 @@ export function openTerminal(
   })
 }
 
-// The default shell, or the first one found.
-export function defaultShell(shells: ShellProfiles): ShellProfile | undefined {
-  return shells.profiles.find((profile) => profile.id === shells.defaultId) ?? shells.profiles[0]
+// The shell named in the settings (by its name, whatever the case, or by its id), else
+// the default shell, else the first one found.
+export function defaultShell(
+  shells: ShellProfiles,
+  preferred: string | undefined
+): ShellProfile | undefined {
+  return (
+    findShell(shells, preferred) ??
+    shells.profiles.find((profile) => profile.id === shells.defaultId) ??
+    shells.profiles[0]
+  )
+}
+
+export function findShell(
+  shells: ShellProfiles,
+  name: string | undefined
+): ShellProfile | undefined {
+  const wanted = name?.trim().toLowerCase()
+  if (!wanted) return undefined
+  return shells.profiles.find(
+    (profile) => profile.name.toLowerCase() === wanted || profile.id.toLowerCase() === wanted
+  )
 }

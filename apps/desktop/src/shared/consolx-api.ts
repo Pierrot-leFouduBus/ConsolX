@@ -1,5 +1,6 @@
 // Shape of the API that the preload script exposes to the UI as `window.consolx`.
 // Shared by the preload (which builds it) and the renderer (which uses it).
+import type { Settings } from './settings'
 import type { WindowsPty } from './windows-pty'
 
 // Stops listening to an event.
@@ -63,6 +64,21 @@ export interface UpdatesApi {
   onState(listener: (state: UpdateState) => void): Unsubscribe
 }
 
+export interface SettingsState {
+  // Settings in use: the last good ones when the file has a problem.
+  settings: Settings
+  // What is wrong in the settings file; empty when it is fine.
+  problems: string[]
+}
+
+export interface SettingsApi {
+  getState(): Promise<SettingsState>
+  // Opens the settings file in the user's editor.
+  open(): void
+  // Called when the settings file changes.
+  onState(listener: (state: SettingsState) => void): Unsubscribe
+}
+
 // The window the UI runs in. It has no system frame, so the UI draws its buttons.
 export interface AppWindowApi {
   minimize(): void
@@ -77,6 +93,7 @@ export interface AppWindowApi {
 export interface ConsolxApi {
   getAppInfo(): Promise<AppInfo>
   appWindow: AppWindowApi
+  settings: SettingsApi
   terminal: TerminalApi
   updates: UpdatesApi
 }

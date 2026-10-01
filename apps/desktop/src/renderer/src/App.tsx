@@ -1,9 +1,12 @@
 // Main screen: the terminals, a status bar and the window buttons, plus the update prompt
-// and toast when needed.
+// and toasts when needed.
 import { useEffect, useState } from 'react'
 import type { AppInfo, ShellProfiles, UpdateState } from '../../shared/consolx-api'
+import { SettingsNotice } from './SettingsNotice'
+import { findShell } from './terminals'
 import { UpdatePrompt } from './UpdatePrompt'
 import { UpdateToast } from './UpdateToast'
+import { SettingsContext, useSettingsState } from './useSettings'
 import { useUpdateState } from './useUpdateState'
 import { WindowButtons } from './WindowButtons'
 import { Workspace } from './Workspace'
@@ -17,6 +20,9 @@ export function App() {
   const updates = window.consolx.updates
   // Shells found on this computer.
   const [shells, setShells] = useState<ShellProfiles>()
+  const settingsState = useSettingsState()
+  // Problems whose notice the user closed; it comes back when they change.
+  const [problemsClosed, setProblemsClosed] = useState<string>()
 
   useEffect(() => {
     void window.consolx.getAppInfo().then((info) => {
@@ -27,12 +33,22 @@ export function App() {
     void window.consolx.terminal.getProfiles().then(setShells)
   }, [])
 
+  const problems = settingsProblems(
+    settingsState?.problems ?? [],
+    shells,
+    settingsState?.settings.defaultProfile
+  )
+
   return (
     <div className="app">
-      {/* Open the workspace once the shells are known, so its first terminal starts once. */}
+      {/* Open the workspace once the shells and settings are known, so its first terminal
+          starts once, with the right shell. */}
       {shells &&
+        settingsState &&
         (shells.profiles.length > 0 ? (
-          <Workspace shells={shells} />
+          <SettingsContext.Provider value={settingsState.settings}>
+            <Workspace shells={shells} />
+          </SettingsContext.Provider>
         ) : (
           <p className="no-shell">No shell was found on this computer.</p>
         ))}
@@ -60,6 +76,14 @@ export function App() {
         />
       )}
 
+      {problems.length > 0 && problemsClosed !== problems.join('\n') && (
+        <SettingsNotice
+          problems={problems}
+          onOpen={() => window.consolx.settings.open()}
+          onClose={() => setProblemsClosed(problems.join('\n'))}
+        />
+      )}
+
       {/* Last, so that it stays above the tab bar it covers. */}
       <WindowButtons />
     </div>
@@ -71,4 +95,15 @@ function updateStatus(update: UpdateState): string {
   if (update.status === 'downloading') return `Downloading update… ${update.percent}%`
   if (update.status === 'ready') return `Version ${update.version} will install when you quit`
   return ''
+}
+
+// Problems of the settings file, plus a default profile that names no installed shell.
+function settingsProblems(
+  problems: string[],
+  shells: ShellProfiles | undefined,
+  defaultProfile: string | undefined
+): string[] {
+  if (!shells || defaultProfile === undefined || findShell(shells, defaultProfile)) return problems
+  const names = shells.profiles.map((profile) => `"${profile.name}"`).join(', ')
+  return [...problems, `defaultProfile: no shell named "${defaultProfile}". Installed: ${names}`]
 }

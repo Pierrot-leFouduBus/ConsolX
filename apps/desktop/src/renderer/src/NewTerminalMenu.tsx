@@ -1,12 +1,14 @@
 // "+" button at the right of each group of tabs: a menu to open a shell in a new tab,
-// or to split the group.
+// to split the group, or to open the settings.
 import type { IDockviewHeaderActionsProps } from 'dockview-react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import type { ShellProfile } from '../../shared/consolx-api'
 import { defaultShell, openTerminal, ShellsContext, type TerminalParams } from './terminals'
+import { useSettings } from './useSettings'
 
 export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewHeaderActionsProps) {
   const shells = useContext(ShellsContext)
+  const settings = useSettings()
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   // Where the menu opens, below the button; null when closed.
@@ -47,8 +49,15 @@ export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewH
   const split = (direction: 'right' | 'below') => {
     setPosition(null)
     const activeId = (activePanel?.params as TerminalParams | undefined)?.profileId
-    const profile = shells.profiles.find((shell) => shell.id === activeId) ?? defaultShell(shells)
+    const profile =
+      shells.profiles.find((shell) => shell.id === activeId) ??
+      defaultShell(shells, settings.defaultProfile)
     if (profile) openTerminal(containerApi, profile, { referenceGroup: group, direction })
+  }
+
+  const openSettings = () => {
+    setPosition(null)
+    window.consolx.settings.open()
   }
 
   return (
@@ -77,6 +86,10 @@ export function NewTerminalMenu({ containerApi, group, activePanel }: IDockviewH
           </button>
           <button type="button" role="menuitem" onClick={() => split('below')}>
             Split down
+          </button>
+          <div className="menu-separator" role="separator" />
+          <button type="button" role="menuitem" onClick={openSettings}>
+            Settings
           </button>
         </div>
       )}

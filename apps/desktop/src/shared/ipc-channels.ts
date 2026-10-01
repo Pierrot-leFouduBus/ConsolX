@@ -2,6 +2,8 @@
 export const IpcChannel = {
   // UI -> main
   getAppInfo: 'app:get-info',
+  settingsGetState: 'settings:get-state',
+  settingsOpen: 'settings:open',
   terminalGetProfiles: 'terminal:get-profiles',
   terminalCreate: 'terminal:create',
   terminalWrite: 'terminal:write',
@@ -15,6 +17,7 @@ export const IpcChannel = {
   windowClose: 'window:close',
   windowIsMaximized: 'window:is-maximized',
   // main -> UI
+  settingsState: 'settings:state',
   terminalData: 'terminal:data',
   terminalExit: 'terminal:exit',
   updateState: 'update:state',

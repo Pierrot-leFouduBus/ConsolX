@@ -1,19 +1,37 @@
 // IPC handlers: the only entry points from the UI into the main process.
 // Every argument comes from the UI, so it is checked before use.
-import { app, BrowserWindow, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  shell,
+  type IpcMainEvent,
+  type IpcMainInvokeEvent
+} from 'electron'
 import { homedir } from 'node:os'
 import { IpcChannel } from '../shared/ipc-channels'
+import type { SettingsStore } from './settings-store'
 import { shellEnvironment } from './shell-env'
 import { defaultProfileId, detectShellProfiles } from './shell-profiles'
 import type { TerminalManager } from './terminal-manager'
 import { downloadUpdate, getUpdateState, installUpdate } from './updater'
 import { toggleMaximize } from './window-frame'
 
-export function registerIpcHandlers(terminals: TerminalManager): void {
+export function registerIpcHandlers(
+  terminals: TerminalManager,
+  settings: SettingsStore,
+  settingsLoaded: Promise<unknown>
+): void {
   // Look for the installed shells once, in the background, at startup.
   const detectedProfiles = detectShellProfiles()
 
   ipcMain.handle(IpcChannel.getAppInfo, () => ({ name: app.getName(), version: app.getVersion() }))
+
+  ipcMain.handle(IpcChannel.settingsGetState, async () => {
+    await settingsLoaded
+    return settings.current
+  })
+  ipcMain.on(IpcChannel.settingsOpen, () => void shell.openPath(settings.file))
 
   // Window buttons: each acts on the window of the page that sent it.
   ipcMain.on(IpcChannel.windowMinimize, (event) => windowOf(event)?.minimize())

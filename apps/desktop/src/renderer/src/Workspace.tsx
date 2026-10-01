@@ -14,12 +14,14 @@ import { TerminalTab } from './TerminalTab'
 import { TerminalView } from './TerminalView'
 import { defaultShell, openTerminal, ShellsContext, type TerminalParams } from './terminals'
 import { trackTitleBar } from './titleBar'
+import { useSettings } from './useSettings'
 
 // Content of a terminal panel.
 function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
   const [active, setActive] = useState(api.isActive)
   // Counts the requests to focus the panel, for example after renaming its tab.
   const [focusRequests, setFocusRequests] = useState(0)
+  const { closeOnExit } = useSettings()
 
   useEffect(() => {
     const activeListener = api.onDidActiveChange((event) => setActive(event.isActive))
@@ -35,10 +37,12 @@ function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalParams>) {
       profileId={params.profileId}
       active={active}
       focusRequests={focusRequests}
-      // A shell that ends normally closes its tab; after an error, the tab stays
-      // open so that its message can be read.
+      // By default ("graceful"), a shell that ends normally closes its tab; after an
+      // error, the tab stays open so that its message can be read.
       onExit={(exitCode) => {
-        if (exitCode === 0) api.close()
+        if (closeOnExit === 'always' || (closeOnExit === 'graceful' && exitCode === 0)) {
+          api.close()
+        }
       }}
     />
   )
@@ -51,8 +55,10 @@ interface WorkspaceProps {
 }
 
 export function Workspace({ shells }: WorkspaceProps) {
+  const { defaultProfile } = useSettings()
+
   const onReady = ({ api }: DockviewReadyEvent) => {
-    const shell = defaultShell(shells)
+    const shell = defaultShell(shells, defaultProfile)
     if (shell) openTerminal(api, shell)
     trackTitleBar(api)
 
