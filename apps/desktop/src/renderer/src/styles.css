@@ -1,17 +1,5 @@
-/* Base styles. Colors come from variables, which themes will redefine in phase 3. */
-:root {
-  --cx-bg: #15171c;
-  --cx-surface: #1f2229;
-  --cx-fg: #f3f0e8;
-  --cx-fg-muted: rgba(243, 240, 232, 0.6);
-  --cx-fg-faint: rgba(243, 240, 232, 0.4);
-  --cx-border: rgba(243, 240, 232, 0.12);
-  --cx-accent: #5fd3a6;
-  --cx-on-accent: #15171c;
-  --cx-tab-bar-height: 32px;
-  /* Three window buttons of 46px, as in Windows. */
-  --cx-window-buttons-width: 138px;
-}
+/* Layout and styles of the interface. Colors, fonts, sizes and shapes come from the
+   theme variables (theme.css), never written here. */
 
 /* The page never scrolls: its parts fit the window. Scrollbars appearing for an instant
    while the window shrinks would also make dockview miss the new size. */
@@ -21,9 +9,14 @@ body,
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--cx-bg);
   color: var(--cx-fg);
-  font-family: system-ui, sans-serif;
+  font-family: var(--cx-font);
+}
+
+/* The window background, painted once: a translucent color must not add up with
+   itself on the elements above. */
+html {
+  background: var(--cx-window-bg);
 }
 
 .app {
@@ -38,24 +31,31 @@ body,
   min-height: 0;
 }
 
-/* dockview's dark theme, with the ConsolX colors. */
+/* dockview's dark theme, with the ConsolX colors. Its group background also colors its
+   pop-up lists, so it is the surface color; the groups themselves are left clear, over
+   the window background. Hidden tabs are clear too, over their tab bar. */
 .dockview-theme-dark {
-  --dv-group-view-background-color: var(--cx-bg);
+  --dv-group-view-background-color: var(--cx-surface);
   --dv-tabs-and-actions-container-background-color: var(--cx-surface);
   --dv-tabs-and-actions-container-height: var(--cx-tab-bar-height);
-  --dv-tabs-and-actions-container-font-size: 12px;
-  --dv-activegroup-visiblepanel-tab-background-color: var(--cx-bg);
-  --dv-activegroup-hiddenpanel-tab-background-color: var(--cx-surface);
-  --dv-inactivegroup-visiblepanel-tab-background-color: var(--cx-bg);
-  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--cx-surface);
-  --dv-tab-divider-color: var(--cx-bg);
+  --dv-tabs-and-actions-container-font-size: var(--cx-font-size-small);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--cx-tab-active-bg);
+  --dv-activegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--cx-tab-active-bg);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-tab-divider-color: var(--cx-window-bg);
   --dv-activegroup-visiblepanel-tab-color: var(--cx-fg);
   --dv-activegroup-hiddenpanel-tab-color: var(--cx-fg-muted);
   --dv-inactivegroup-visiblepanel-tab-color: var(--cx-fg-muted);
   --dv-inactivegroup-hiddenpanel-tab-color: var(--cx-fg-faint);
   --dv-separator-border: var(--cx-border);
-  --dv-drag-over-background-color: rgba(95, 211, 166, 0.2);
+  --dv-drag-over-background-color: var(--cx-accent-soft);
   font-family: inherit;
+}
+
+.dockview-theme-dark .dv-dockview,
+.dockview-theme-dark .dv-groupview {
+  background-color: transparent;
 }
 
 /* Title bar (see titleBar.ts): the empty space of the top tab bars moves the window. It
@@ -102,12 +102,12 @@ body,
 }
 
 .window-buttons button.close:hover {
-  background: #e81123;
-  color: #ffffff;
+  background: var(--cx-danger);
+  color: var(--cx-on-danger);
 }
 
 .window-buttons button.close:active {
-  background: #f1707a;
+  background: var(--cx-danger-pressed);
 }
 
 .window-buttons svg {
@@ -124,11 +124,13 @@ body,
 }
 
 /* A terminal fills its pane. Not named "terminal": xterm.js gives that class to its
-   own element, which would get this padding too. */
+   own element, which would get this padding too. Its colors come from the theme too,
+   through terminalTheme.ts. */
 .terminal-view {
   box-sizing: border-box;
   height: 100%;
-  padding: 6px 8px;
+  padding: var(--cx-terminal-padding);
+  background: var(--cx-terminal-bg);
 }
 
 /* xterm.css paints this legacy element black with a native scrollbar; xterm.js 6 draws
@@ -136,6 +138,13 @@ body,
 .xterm .xterm-viewport {
   background-color: transparent;
   overflow-y: hidden;
+}
+
+/* xterm.js paints the terminal background here, in the element's style: the terminal
+   view already paints it, padding included, so it is cleared to paint it once. xterm.js
+   still uses the color, for example for reversed text. */
+.terminal-view .xterm-scrollable-element {
+  background-color: transparent !important;
 }
 
 /* Terminal tab: title, rename field and close button. */
@@ -158,8 +167,8 @@ body,
   width: 140px;
   padding: 2px 4px;
   border: 1px solid var(--cx-accent);
-  border-radius: 3px;
-  background: var(--cx-bg);
+  border-radius: var(--cx-radius-small);
+  background: var(--cx-window-bg);
   color: var(--cx-fg);
   font: inherit;
 }
@@ -172,7 +181,7 @@ body,
   height: 22px;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--cx-radius-small);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -211,16 +220,16 @@ body,
   min-width: 180px;
   padding: 4px;
   border: 1px solid var(--cx-border);
-  border-radius: 6px;
+  border-radius: var(--cx-radius);
   background: var(--cx-surface);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-  font-size: 13px;
+  box-shadow: var(--cx-shadow);
+  font-size: var(--cx-font-size);
 }
 
 .menu button {
   padding: 6px 10px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--cx-radius-small);
   background: transparent;
   color: var(--cx-fg);
   font: inherit;
@@ -248,7 +257,7 @@ body,
   padding: 3px 10px;
   border-top: 1px solid var(--cx-border);
   color: var(--cx-fg-muted);
-  font-size: 12px;
+  font-size: var(--cx-font-size-small);
 }
 
 /* Without tabs there is no title bar: this message moves the window instead. */
@@ -260,11 +269,11 @@ body,
   -webkit-app-region: drag;
 }
 
-/* Buttons of the update prompt and toast. */
+/* Buttons of the update prompt and the notices. */
 :is(.dialog, .toast) button {
   padding: 6px 14px;
   border: 1px solid var(--cx-border);
-  border-radius: 6px;
+  border-radius: var(--cx-radius);
   background: transparent;
   color: var(--cx-fg);
   font: inherit;
@@ -301,19 +310,19 @@ button:focus-visible {
   width: min(380px, calc(100% - 32px));
   padding: 20px;
   border: 1px solid var(--cx-border);
-  border-radius: 10px;
+  border-radius: var(--cx-radius-large);
   background: var(--cx-surface);
   color: var(--cx-fg);
-  font-size: 14px;
+  font-size: var(--cx-font-size-large);
 }
 
 .dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--cx-backdrop);
 }
 
 .dialog h2 {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: var(--cx-font-size-title);
 }
 
 .dialog p {
@@ -321,7 +330,8 @@ button:focus-visible {
   color: var(--cx-fg-muted);
 }
 
-/* Update toast: a bubble in the bottom right corner, above the status bar. */
+/* Notices (update ready, settings problem): a bubble in the bottom right corner, above
+   the status bar. */
 .toast {
   position: fixed;
   right: 16px;
@@ -330,12 +340,18 @@ button:focus-visible {
   padding: 14px 16px;
   border: 1px solid var(--cx-border);
   border-left: 3px solid var(--cx-accent);
-  border-radius: 8px;
+  border-radius: var(--cx-radius-large);
   background: var(--cx-surface);
-  font-size: 13px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  font-size: var(--cx-font-size);
+  box-shadow: var(--cx-shadow);
 }
 
 .toast p {
   margin: 0 0 12px;
+}
+
+.settings-notice ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: var(--cx-fg-muted);
 }

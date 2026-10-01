@@ -4,6 +4,7 @@ import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 import { ConptyScrollFix } from '../../shared/windows-pty'
+import { terminalTheme } from './terminalTheme'
 import { useSettings } from './useSettings'
 
 interface TerminalViewProps {
@@ -39,7 +40,9 @@ export function TerminalView({ profileId, active, focusRequests, onExit }: Termi
     const terminal = new Terminal({
       ...fontRef.current,
       cursorBlink: true,
-      theme: { background: '#15171c', foreground: '#f3f0e8', cursor: '#5fd3a6' },
+      theme: terminalTheme(),
+      // Lets the theme give the terminal a translucent background.
+      allowTransparency: true,
       // On Windows, ConPTY or winpty also draw the shell's screen: xterm.js adapts to them.
       windowsPty: api.windowsPty
     })

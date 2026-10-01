@@ -1,0 +1,79 @@
+/* Default ConsolX theme: every color, font, size and shape of the interface and the
+   terminals. The rest of the styles only read these variables, so a theme changes the
+   look by giving them other values. Every color accepts an alpha channel (rgba or
+   #rrggbbaa): the window is transparent, so translucent themes are possible. Each layer
+   is painted once: the window background, then the tab bars and the terminals on it. */
+:root {
+  /* Window and surfaces. The window background is under everything else. */
+  --cx-window-bg: #15171c;
+  /* Tab bars, menus, dialogs and notices. */
+  --cx-surface: #1f2229;
+  /* The tab shown in each group, over its tab bar. */
+  --cx-tab-active-bg: #15171c;
+
+  /* Text. */
+  --cx-fg: #f3f0e8;
+  --cx-fg-muted: rgba(243, 240, 232, 0.6);
+  --cx-fg-faint: rgba(243, 240, 232, 0.4);
+  /* Borders, separators and the background of hovered items. */
+  --cx-border: rgba(243, 240, 232, 0.12);
+
+  /* Accent: focus, primary buttons, where a dragged tab will go. */
+  --cx-accent: #5fd3a6;
+  --cx-on-accent: #15171c;
+  --cx-accent-soft: rgba(95, 211, 166, 0.2);
+
+  /* Close button of the window, as in Windows. */
+  --cx-danger: #e81123;
+  --cx-on-danger: #ffffff;
+  --cx-danger-pressed: #f1707a;
+
+  /* Under menus and notices, and behind dialogs. */
+  --cx-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  --cx-backdrop: rgba(0, 0, 0, 0.5);
+
+  /* Terminals. The font is set in settings.json (terminal.fontFamily and fontSize). */
+  --cx-terminal-bg: #15171c;
+  --cx-terminal-fg: #f3f0e8;
+  --cx-terminal-cursor: #5fd3a6;
+  --cx-terminal-cursor-text: #15171c;
+  --cx-terminal-selection: rgba(95, 211, 166, 0.3);
+  --cx-terminal-padding: 6px 8px;
+
+  /* The 16 colors that programs use in the terminals. */
+  --cx-terminal-black: #2b2f38;
+  --cx-terminal-red: #e8636b;
+  --cx-terminal-green: #5fd3a6;
+  --cx-terminal-yellow: #e6c07b;
+  --cx-terminal-blue: #6aa8ec;
+  --cx-terminal-magenta: #c594e8;
+  --cx-terminal-cyan: #4fc4d4;
+  --cx-terminal-white: #d6d2c9;
+  --cx-terminal-bright-black: #7d8494;
+  --cx-terminal-bright-red: #ff8f94;
+  --cx-terminal-bright-green: #8fe8c3;
+  --cx-terminal-bright-yellow: #f5d9a0;
+  --cx-terminal-bright-blue: #99c4f7;
+  --cx-terminal-bright-magenta: #ddb6f7;
+  --cx-terminal-bright-cyan: #86dee9;
+  --cx-terminal-bright-white: #f3f0e8;
+
+  /* Fonts of the interface. */
+  --cx-font: system-ui, sans-serif;
+  /* Tabs and status bar. */
+  --cx-font-size-small: 12px;
+  /* Menus and notices. */
+  --cx-font-size: 13px;
+  /* Dialogs, and their titles. */
+  --cx-font-size-large: 14px;
+  --cx-font-size-title: 16px;
+
+  /* Rounded corners: buttons and fields, menus, dialogs and notices. */
+  --cx-radius-small: 4px;
+  --cx-radius: 6px;
+  --cx-radius-large: 10px;
+
+  /* Sizes. Three window buttons of 46px, as in Windows. */
+  --cx-tab-bar-height: 32px;
+  --cx-window-buttons-width: 138px;
+}
