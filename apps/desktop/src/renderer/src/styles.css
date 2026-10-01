@@ -13,10 +13,15 @@ body,
   font-family: var(--cx-font);
 }
 
-/* The window background, painted once: a translucent color must not add up with
-   itself on the elements above. */
+/* The window background, under everything. When a part of the window is translucent
+   (the opacity settings), it is cleared: each part then paints its own background once,
+   with its own opacity, so that translucent colors never add up. */
 html {
   background: var(--cx-window-bg);
+}
+
+html[data-translucent] {
+  background: transparent;
 }
 
 .app {
@@ -35,13 +40,24 @@ html {
    pop-up lists, so it is the surface color; the groups themselves are left clear, over
    the window background. Hidden tabs are clear too, over their tab bar. */
 .dockview-theme-dark {
+  /* The tab bars and their tabs, with the opacity of the tabs.opacity setting. */
+  --cx-tabs-surface: color-mix(
+    in srgb,
+    var(--cx-surface) calc(var(--cx-tabs-opacity) * 100%),
+    transparent
+  );
+  --cx-tabs-active-bg: color-mix(
+    in srgb,
+    var(--cx-tab-active-bg) calc(var(--cx-tabs-opacity) * 100%),
+    transparent
+  );
   --dv-group-view-background-color: var(--cx-surface);
-  --dv-tabs-and-actions-container-background-color: var(--cx-surface);
+  --dv-tabs-and-actions-container-background-color: var(--cx-tabs-surface);
   --dv-tabs-and-actions-container-height: var(--cx-tab-bar-height);
   --dv-tabs-and-actions-container-font-size: var(--cx-font-size-small);
-  --dv-activegroup-visiblepanel-tab-background-color: var(--cx-tab-active-bg);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--cx-tabs-active-bg);
   --dv-activegroup-hiddenpanel-tab-background-color: transparent;
-  --dv-inactivegroup-visiblepanel-tab-background-color: var(--cx-tab-active-bg);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--cx-tabs-active-bg);
   --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
   --dv-tab-divider-color: var(--cx-window-bg);
   --dv-activegroup-visiblepanel-tab-color: var(--cx-fg);
@@ -125,12 +141,16 @@ html {
 
 /* A terminal fills its pane. Not named "terminal": xterm.js gives that class to its
    own element, which would get this padding too. Its colors come from the theme too,
-   through terminalTheme.ts. */
+   through terminalTheme.ts; its background has the opacity of terminal.opacity. */
 .terminal-view {
   box-sizing: border-box;
   height: 100%;
   padding: var(--cx-terminal-padding);
-  background: var(--cx-terminal-bg);
+  background: color-mix(
+    in srgb,
+    var(--cx-terminal-bg) calc(var(--cx-terminal-opacity) * 100%),
+    transparent
+  );
 }
 
 /* xterm.css paints this legacy element black with a native scrollbar; xterm.js 6 draws
@@ -259,6 +279,12 @@ html {
   gap: 16px;
   padding: 3px 10px;
   border-top: 1px solid var(--cx-border);
+  /* The bottom edge of the window, with the opacity of window.opacity. */
+  background: color-mix(
+    in srgb,
+    var(--cx-window-bg) calc(var(--cx-window-opacity) * 100%),
+    transparent
+  );
   color: var(--cx-fg-muted);
   font-size: var(--cx-font-size-small);
 }

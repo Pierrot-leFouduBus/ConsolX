@@ -10,6 +10,12 @@
     /* Space around the text of the terminals. */
     --cx-terminal-padding: 6px 8px;
 
+    /* Opacity of the background of the terminals, of the tab bars and of the status bar,
+       from 0 (transparent) to 1. Set by the opacity settings, which override these. */
+    --cx-terminal-opacity: 1;
+    --cx-tabs-opacity: 1;
+    --cx-window-opacity: 1;
+
     /* Fonts of the interface. */
     --cx-font: system-ui, sans-serif;
     /* Tabs and status bar. */

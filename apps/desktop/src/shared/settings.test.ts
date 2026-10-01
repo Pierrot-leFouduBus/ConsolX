@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { defaultSettings, newSettingsFile, readSettings, settingsJsonSchema } from './settings'
+import {
+  defaultSettings,
+  isTranslucent,
+  newSettingsFile,
+  readSettings,
+  settingsJsonSchema
+} from './settings'
 import { parseShortcut } from './shortcuts'
 
 describe('readSettings', () => {
@@ -26,6 +32,9 @@ describe('readSettings', () => {
       theme: 'system',
       'terminal.fontFamily': 'Consolas',
       'terminal.fontSize': 12,
+      'terminal.opacity': 0.8,
+      'tabs.opacity': 0.9,
+      'window.opacity': 0.7,
       'keys.newTab': 'Ctrl+Alt+N',
       'keys.closeTab': ''
     })
@@ -33,9 +42,17 @@ describe('readSettings', () => {
       defaultProfile: 'Git Bash',
       closeOnExit: 'never',
       theme: 'system',
-      terminal: { fontFamily: 'Consolas', fontSize: 12 },
+      terminal: { fontFamily: 'Consolas', fontSize: 12, opacity: 0.8 },
+      tabs: { opacity: 0.9 },
+      window: { opacity: 0.7 },
       keys: { ...defaultSettings.keys, newTab: parseShortcut('Ctrl+Alt+N'), closeTab: null }
     })
+  })
+
+  it('refuses an opacity outside 0 to 1', () => {
+    const { settings, problems } = readSettings('{ "terminal.opacity": 1.5 }')
+    expect(settings).toBeUndefined()
+    expect(problems[0]).toMatch(/^terminal\.opacity: /)
   })
 
   it('gives every action its default shortcut', () => {
@@ -106,6 +123,9 @@ describe('settingsJsonSchema', () => {
       'theme',
       'terminal.fontFamily',
       'terminal.fontSize',
+      'terminal.opacity',
+      'tabs.opacity',
+      'window.opacity',
       'keys.newTab',
       'keys.closeTab',
       'keys.nextTab',
@@ -121,5 +141,22 @@ describe('settingsJsonSchema', () => {
       'keys.openSettings'
     ])
     expect(schema.properties['closeOnExit']?.description).toMatch(/graceful/)
+  })
+})
+
+describe('isTranslucent', () => {
+  const withOpacity = (part: 'terminal' | 'tabs' | 'window', opacity: number) => ({
+    ...defaultSettings,
+    [part]: { ...defaultSettings[part], opacity }
+  })
+
+  it('is false while every part of the window is opaque', () => {
+    expect(isTranslucent(defaultSettings)).toBe(false)
+  })
+
+  it('is true as soon as one part lets the desktop show through', () => {
+    for (const part of ['terminal', 'tabs', 'window'] as const) {
+      expect(isTranslucent(withOpacity(part, 0.9)), part).toBe(true)
+    }
   })
 })

@@ -89,6 +89,29 @@ A font name with spaces is written in quotes, which are preceded by `\` inside t
 
 The size of the font of the terminals, in pixels, from 6 to 72. Default: `14`.
 
+### terminal.opacity, tabs.opacity and window.opacity
+
+How much each part of the window lets the desktop show through, from `0` (transparent) to `1`
+(opaque, the default):
+
+| Setting            | Part of the window                          |
+| ------------------ | ------------------------------------------- |
+| `terminal.opacity` | The background of the terminals             |
+| `tabs.opacity`     | The tab bars, at the top of the panes       |
+| `window.opacity`   | The status bar, at the bottom of the window |
+
+```jsonc
+  "terminal.opacity": 0.85,
+```
+
+Only the backgrounds become translucent: the text stays opaque. Menus, dialogs and notices stay
+opaque too, so that they are easy to read.
+
+What is behind the translucent parts is blurred, which keeps the text easy to read. Windows 10
+cannot show it sharp while keeping the snapping of the window to the screen edges and its shadow.
+The blur needs the transparency effects of Windows: **Settings**, **Personalization**,
+**Colors**, **Transparency effects**.
+
 ### keys.\*
 
 One setting per keyboard shortcut, such as `"keys.newTab": "Ctrl+Shift+T"`. See

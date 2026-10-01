@@ -2,12 +2,13 @@
 import { app, BrowserWindow, Menu } from 'electron'
 import { join } from 'node:path'
 import { IpcChannel } from '../shared/ipc-channels'
+import { isTranslucent } from '../shared/settings'
 import { registerIpcHandlers } from './ipc'
 import { getRendererSource } from './renderer-source'
 import { SettingsStore } from './settings-store'
 import { TerminalManager } from './terminal-manager'
 import { startAutoUpdate } from './updater'
-import { setUpFrame } from './window-frame'
+import { setBlur, setUpFrame } from './window-frame'
 
 // Development only, on request: open the Chrome DevTools protocol on a local port, so
 // that tools can inspect and drive the UI (CONSOLX_REMOTE_DEBUGGING_PORT=9222).
@@ -61,7 +62,7 @@ function createWindow(): void {
 
   // Show the window once its content is ready, to avoid a blank flash.
   window.once('ready-to-show', () => window.show())
-  setUpFrame(window)
+  setUpFrame(window, () => isTranslucent(settings.current.settings))
 
   // Development only: F12 opens the DevTools, since there is no menu anymore.
   if (!app.isPackaged) {
@@ -96,13 +97,18 @@ void app.whenReady().then(() => {
   startAutoUpdate()
 
   // Apply each change of the settings file to every window at once.
-  void settingsLoaded.then(() =>
+  void settingsLoaded.then(() => {
+    // Set the blur again only when it changes: setting it refreshes the window frame.
+    let blur = isTranslucent(settings.current.settings)
     settings.watch((state) => {
+      const blurChanged = isTranslucent(state.settings) !== blur
+      blur = isTranslucent(state.settings)
       for (const window of BrowserWindow.getAllWindows()) {
         window.webContents.send(IpcChannel.settingsState, state)
+        if (blurChanged) setBlur(window, blur)
       }
     })
-  )
+  })
 
   // macOS: re-create a window when the dock icon is clicked and none is open.
   app.on('activate', () => {

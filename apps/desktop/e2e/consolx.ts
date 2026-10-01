@@ -66,3 +66,20 @@ export async function chooseInMenu(window: Page, entry: string): Promise<void> {
   await window.getByRole('button', { name: 'New terminal' }).first().click()
   await window.getByRole('menuitem', { name: entry, exact: true }).click()
 }
+
+// The background color of an element, as "rgb(r, g, b)", and its opacity from 0 to 1.
+// Colors mixed by the styles (color-mix) come as "color(srgb r g b / alpha)".
+export async function background(element: Locator): Promise<{ rgb: string; alpha: number }> {
+  const color = await element.evaluate(
+    // In the page: the e2e code itself has no browser globals.
+    (node) => node.ownerDocument.defaultView!.getComputedStyle(node).backgroundColor
+  )
+  const srgb = /^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)$/.exec(color)
+  const rgba = /^rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)$/.exec(color)
+  if (!srgb && !rgba) throw new Error(`Unknown color: ${color}`)
+  const channels = srgb
+    ? srgb.slice(1, 4).map((value) => Math.round(Number(value) * 255))
+    : rgba!.slice(1, 4).map(Number)
+  const alpha = (srgb ?? rgba)![4]
+  return { rgb: `rgb(${channels.join(', ')})`, alpha: alpha === undefined ? 1 : Number(alpha) }
+}

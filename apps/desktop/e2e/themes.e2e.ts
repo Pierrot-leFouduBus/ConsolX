@@ -1,7 +1,7 @@
 // Themes: chosen in the settings file, applied at once to the interface and the terminals.
 import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { expect, terminals, test, TEST_SETTINGS } from './consolx'
+import { background, expect, terminals, test, TEST_SETTINGS } from './consolx'
 
 // Colors of themes/light.css, as the page computes them.
 const LIGHT_BACKGROUND = 'rgb(247, 245, 240)'
@@ -15,7 +15,9 @@ test('switches to the light theme when the settings file changes', async ({
 
   writeFileSync(settingsFile, JSON.stringify({ ...TEST_SETTINGS, theme: 'light' }))
   await expect(page).toHaveAttribute('data-theme', 'light')
-  await expect(terminals(window).first()).toHaveCSS('background-color', LIGHT_BACKGROUND)
+  await expect
+    .poll(async () => (await background(terminals(window).first())).rgb)
+    .toBe(LIGHT_BACKGROUND)
   // xterm.js gets the colors of the new theme too: it draws the text of the terminal.
   await expect(window.locator('.xterm-rows').first()).toHaveCSS('color', LIGHT_TEXT)
 })
@@ -41,11 +43,15 @@ test('applies the user CSS file on top of the theme, at once', async ({
     userCssFile,
     ':root { --cx-terminal-bg: rgb(1, 2, 3); --cx-terminal-fg: rgb(200, 100, 50); }'
   )
-  await expect(terminals(window).first()).toHaveCSS('background-color', 'rgb(1, 2, 3)')
+  await expect
+    .poll(async () => (await background(terminals(window).first())).rgb)
+    .toBe('rgb(1, 2, 3)')
   await expect(window.locator('.xterm-rows').first()).toHaveCSS('color', 'rgb(200, 100, 50)')
 
   // A plain :root rule wins over every theme, the light one too.
   writeFileSync(settingsFile, JSON.stringify({ ...TEST_SETTINGS, theme: 'light' }))
   await expect(window.locator('html')).toHaveAttribute('data-theme', 'light')
-  await expect(terminals(window).first()).toHaveCSS('background-color', 'rgb(1, 2, 3)')
+  await expect
+    .poll(async () => (await background(terminals(window).first())).rgb)
+    .toBe('rgb(1, 2, 3)')
 })

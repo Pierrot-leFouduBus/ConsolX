@@ -84,3 +84,22 @@ and so the background opacity, can be changed live.
   transparent windows" now has known limits and workarounds; Windows 11 remains to be
   validated.
 - **12, decision log**: record the blur on Windows 10 and the use of koffi.
+
+## Update: the blur in ConsolX (1 October 2026)
+
+Building the translucent window of ConsolX showed one more condition. With the frame
+styles back, the blur only shows when it is set **before** the frame change and again
+after it, **with the tint flag** of `ACCENT_POLICY` (`AccentFlags: 2`, here with a clear
+tint, `GradientColor: 0`). Set only after the frame change, or without the tint flag, the
+window stays dark. Tried side by side on the same machine:
+
+| Way of setting the blur                                  | Result      |
+| -------------------------------------------------------- | ----------- |
+| After the frame change, no tint flag                     | Dark        |
+| Before and after, no tint flag                           | Dark        |
+| After the frame change, tint flag                        | Dark        |
+| **Before and after, tint flag**                          | **Blurred** |
+| Plain transparency (`ACCENT_ENABLE_TRANSPARENTGRADIENT`) | Black       |
+
+So ConsolX always blurs what is behind its translucent parts: a sharp see-through window
+would need to drop the frame styles, and with them snapping and the shadow.

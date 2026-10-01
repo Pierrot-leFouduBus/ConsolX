@@ -6,6 +6,11 @@ ConsolX has a dark theme, used by default, and a light theme. The
 [`theme`](settings.md#theme) setting chooses one, or follows the light or dark mode of Windows
 with `"system"`.
 
+## Translucent window
+
+The terminals, the tab bars and the status bar can each let the desktop show through, blurred:
+see the [opacity settings](settings.md#terminalopacity-tabsopacity-and-windowopacity).
+
 ## The user CSS file
 
 To change the look of ConsolX further, write CSS in `%APPDATA%\ConsolX\user.css`, next to the

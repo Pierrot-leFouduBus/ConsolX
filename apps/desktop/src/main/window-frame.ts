@@ -1,13 +1,26 @@
 // The window has no system frame: the UI draws the title bar and the window buttons.
 // This module gives such a window what the system frame would: snapping, shadow and a
-// real maximize on Windows, and the maximized state for the UI.
+// real maximize on Windows, and the maximized state for the UI. It also blurs what is
+// behind the translucent parts of the window.
 import type { BrowserWindow } from 'electron'
 import koffi from 'koffi'
 import { IpcChannel } from '../shared/ipc-channels'
 
-export function setUpFrame(window: BrowserWindow): void {
+// wantsBlur tells whether a part of the window is translucent, with the blur behind.
+export function setUpFrame(window: BrowserWindow, wantsBlur: () => boolean): void {
   if (process.platform === 'win32') {
-    window.once('show', () => restoreFrameStyles(window))
+    window.once('show', () => {
+      // When the window opens translucent, the blur is set around this first frame
+      // change, as setBlur does around a refresh of the frame.
+      const blur = wantsBlur()
+      if (blur) setAccent(window, true)
+      restoreFrameStyles(window)
+      if (blur) {
+        setTimeout(() => {
+          if (!window.isDestroyed()) setAccent(window, true)
+        }, 100)
+      }
+    })
 
     // Electron ignores the system maximize command on transparent windows, which a
     // double-click on the title bar and Win+Up send: carry it out once Electron is done
@@ -38,6 +51,43 @@ export function toggleMaximize(window: BrowserWindow): void {
   }
 }
 
+// Blurs what is behind the window, or stops. Windows 10 has no documented way to do it:
+// SetWindowCompositionAttribute is undocumented. See docs/prototypes/transparency.md.
+// With the frame styles back, the blur only shows when it is set, then the frame
+// refreshed, then the blur set again once Windows has handled the refresh (found by
+// trying each way on Windows 10).
+export function setBlur(window: BrowserWindow, blur: boolean): void {
+  if (process.platform !== 'win32') return
+  setAccent(window, blur)
+  if (!blur) return
+  refreshFrame(window)
+  setTimeout(() => {
+    if (!window.isDestroyed()) setAccent(window, true)
+  }, 100)
+}
+
+function setAccent(window: BrowserWindow, blur: boolean): void {
+  user32 ??= loadUser32()
+  const policy = koffi.alloc(user32.AccentPolicy, 1)
+  try {
+    koffi.encode(policy, user32.AccentPolicy, {
+      AccentState: blur ? ACCENT_ENABLE_BLURBEHIND : ACCENT_DISABLED,
+      // The blur only shows with the tint flag, so it is set with a clear tint: the UI
+      // paints its own colors over the blur.
+      AccentFlags: blur ? ACCENT_FLAG_TINT : 0,
+      GradientColor: 0,
+      AnimationId: 0
+    })
+    user32.setWindowCompositionAttribute(handleOf(window), {
+      Attribute: WCA_ACCENT_POLICY,
+      Data: policy,
+      SizeOfData: koffi.sizeof(user32.AccentPolicy)
+    })
+  } finally {
+    koffi.free(policy)
+  }
+}
+
 const WM_SYSCOMMAND = 0x0112
 // The low 4 bits of the command carry other information.
 const SC_MAXIMIZE = 0xf030
@@ -53,6 +103,13 @@ const WS_CAPTION = 0x00c00000
 // SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED
 const SWP_REFRESH_FRAME = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020
 
+// Effects of SetWindowCompositionAttribute (ACCENT_POLICY, undocumented).
+const WCA_ACCENT_POLICY = 19
+const ACCENT_DISABLED = 0
+const ACCENT_ENABLE_BLURBEHIND = 3
+// Use GradientColor as a tint over the effect.
+const ACCENT_FLAG_TINT = 2
+
 // Windows API functions, called from JavaScript with koffi. Loaded on first use, since
 // user32.dll only exists on Windows.
 type User32 = ReturnType<typeof loadUser32>
@@ -60,7 +117,23 @@ let user32: User32 | undefined
 
 function loadUser32() {
   const library = koffi.load('user32.dll')
+  const AccentPolicy = koffi.struct('ACCENT_POLICY', {
+    AccentState: 'int',
+    AccentFlags: 'int',
+    GradientColor: 'uint32',
+    AnimationId: 'int'
+  })
+  // Registered by name: the function below refers to it.
+  koffi.struct('WINDOWCOMPOSITIONATTRIBDATA', {
+    Attribute: 'int',
+    Data: 'void *',
+    SizeOfData: 'size_t'
+  })
   return {
+    AccentPolicy,
+    setWindowCompositionAttribute: library.func(
+      'bool __stdcall SetWindowCompositionAttribute(intptr_t hwnd, WINDOWCOMPOSITIONATTRIBDATA *data)'
+    ),
     getWindowLongPtr: library.func(
       'intptr_t __stdcall GetWindowLongPtrW(intptr_t hwnd, int index)'
     ),
@@ -81,7 +154,12 @@ function restoreFrameStyles(window: BrowserWindow): void {
   const style = Number(user32.getWindowLongPtr(hwnd, GWL_STYLE))
   user32.setWindowLongPtr(hwnd, GWL_STYLE, BigInt(style | WS_THICKFRAME | WS_CAPTION))
   // Windows applies new frame styles only after this call.
-  user32.setWindowPos(hwnd, 0n, 0, 0, 0, 0, SWP_REFRESH_FRAME)
+  refreshFrame(window)
+}
+
+function refreshFrame(window: BrowserWindow): void {
+  user32 ??= loadUser32()
+  user32.setWindowPos(handleOf(window), 0n, 0, 0, 0, 0, SWP_REFRESH_FRAME)
 }
 
 function showWindow(window: BrowserWindow, command: number): void {

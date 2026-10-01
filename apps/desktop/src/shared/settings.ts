@@ -61,15 +61,36 @@ const settingsFileSchema = z.strictObject({
     .max(72)
     .default(14)
     .describe('Font size of the terminals, in pixels.'),
+  'terminal.opacity': opacitySetting('Opacity of the background of the terminals'),
+  'tabs.opacity': opacitySetting('Opacity of the tab bars, at the top of the panes'),
+  'window.opacity': opacitySetting('Opacity of the status bar, at the bottom of the window'),
   ...shortcutSettings
 })
+
+// An opacity, from 0 (transparent: the desktop shows through, blurred) to 1 (opaque).
+// Windows 10 cannot show the desktop clearly through a window that keeps its frame
+// styles (snapping and shadow), so translucent parts are always blurred.
+function opacitySetting(what: string) {
+  return z
+    .number()
+    .min(0)
+    .max(1)
+    .default(1)
+    .describe(`${what}, from 0 (transparent) to 1 (opaque).`)
+}
 
 // The settings as the app uses them, grouped.
 export const settingsSchema = settingsFileSchema.transform((file) => ({
   defaultProfile: file.defaultProfile,
   closeOnExit: file.closeOnExit,
   theme: file.theme,
-  terminal: { fontFamily: file['terminal.fontFamily'], fontSize: file['terminal.fontSize'] },
+  terminal: {
+    fontFamily: file['terminal.fontFamily'],
+    fontSize: file['terminal.fontSize'],
+    opacity: file['terminal.opacity']
+  },
+  tabs: { opacity: file['tabs.opacity'] },
+  window: { opacity: file['window.opacity'] },
   // Each action with its shortcut, or null when it has none.
   keys: Object.fromEntries(
     SHORTCUT_ACTIONS.map(({ id }) => [id, parseShortcut(file[`keys.${id}`]) ?? null])
@@ -78,6 +99,12 @@ export const settingsSchema = settingsFileSchema.transform((file) => ({
 
 export type Settings = z.output<typeof settingsSchema>
 export type ThemeSetting = Settings['theme']
+
+// Whether a part of the window lets the desktop show through. Windows then blurs what is
+// behind the window.
+export function isTranslucent(settings: Settings): boolean {
+  return Math.min(settings.terminal.opacity, settings.tabs.opacity, settings.window.opacity) < 1
+}
 
 export const defaultSettings: Settings = settingsSchema.parse({})
 

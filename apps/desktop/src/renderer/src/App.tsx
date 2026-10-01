@@ -24,7 +24,7 @@ export function App() {
   const settingsState = useSettingsState()
   // Problems whose notice the user closed; it comes back when they change.
   const [problemsClosed, setProblemsClosed] = useState<string>()
-  const theme = useTheme(settingsState?.settings.theme, settingsState?.userCss ?? '')
+  const theme = useTheme(settingsState?.settings, settingsState?.userCss ?? '')
 
   useEffect(() => {
     void window.consolx.getAppInfo().then((info) => {

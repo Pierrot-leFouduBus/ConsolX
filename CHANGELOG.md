@@ -12,6 +12,9 @@ as the notes of its GitHub release.
 - A user CSS file, `%APPDATA%\ConsolX\user.css`: CSS applied on top of the theme as soon as it
   is saved. It changes the look of ConsolX through the theme variables, listed in the
   [user guide](https://github.com/Pierrot-leFouduBus/ConsolX/blob/main/docs/user/themes.md).
+- A translucent window: the terminals, the tab bars and the status bar each have an opacity
+  setting (`terminal.opacity`, `tabs.opacity`, `window.opacity`), and what is behind them is
+  blurred.
 
 ## [1.0.0] - 2026-10-01
 
