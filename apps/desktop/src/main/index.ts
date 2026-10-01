@@ -16,6 +16,11 @@ if (!app.isPackaged && debuggingPort) {
   app.commandLine.appendSwitch('remote-debugging-port', debuggingPort)
 }
 
+// Development and tests only: keep the settings and the page data in another folder,
+// so that end-to-end tests never touch the real settings (CONSOLX_USER_DATA_DIR=<folder>).
+const userDataDir = process.env['CONSOLX_USER_DATA_DIR']
+if (!app.isPackaged && userDataDir) app.setPath('userData', userDataDir)
+
 // No application menu: the default one has shortcuts that shells need, such as Ctrl+W
 // (close the window) and Ctrl+R (reload the page, which stops every shell).
 Menu.setApplicationMenu(null)

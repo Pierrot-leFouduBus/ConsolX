@@ -19,6 +19,8 @@
   "include": [
     "electron.vite.config.ts",
     "electron-builder.dev.ts",
+    "playwright.config.ts",
+    "e2e/**/*",
     "src/main/**/*",
     "src/preload/**/*",
     "src/shared/**/*"

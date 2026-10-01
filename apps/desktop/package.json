@@ -15,12 +15,14 @@
     "dist": "electron-vite build && electron-builder --publish never",
     "release:github": "electron-vite build && electron-builder --publish always",
     "release:local": "node scripts/release-local.mjs",
+    "test:e2e": "electron-vite build && playwright test",
     "serve:local": "node scripts/serve-local.mjs",
     "typecheck:node": "tsc --noEmit --composite false -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit --composite false -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.19.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

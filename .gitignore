@@ -13,6 +13,7 @@ release-dev/
 
 # Test output
 coverage/
+test-results/
 
 # Logs
 *.log

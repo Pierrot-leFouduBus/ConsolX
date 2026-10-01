@@ -8,7 +8,14 @@ import tseslint from 'typescript-eslint'
 
 export default defineConfig(
   // Generated files are never linted.
-  globalIgnores(['**/out/', '**/dist/', '**/release/', '**/release-dev/', '**/coverage/']),
+  globalIgnores([
+    '**/out/',
+    '**/dist/',
+    '**/release/',
+    '**/release-dev/',
+    '**/coverage/',
+    '**/test-results/'
+  ]),
 
   // Base rules for JavaScript and TypeScript.
   js.configs.recommended,
@@ -19,6 +26,7 @@ export default defineConfig(
     files: [
       '*.{js,ts}',
       'apps/desktop/*.ts',
+      'apps/desktop/e2e/**/*.ts',
       'apps/desktop/scripts/**/*.mjs',
       'apps/desktop/src/{main,preload}/**/*.ts'
     ],
