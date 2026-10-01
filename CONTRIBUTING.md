@@ -61,16 +61,17 @@ npm run dev
 
 Run them from the root of the repository.
 
-| Script                 | What it does                                  |
-| ---------------------- | --------------------------------------------- |
-| `npm run dev`          | Start the app in development mode.            |
-| `npm run build`        | Build all packages.                           |
-| `npm run typecheck`    | Check TypeScript types in all packages.       |
-| `npm run lint`         | Check the code with ESLint.                   |
-| `npm run format`       | Format all files with Prettier.               |
-| `npm run format:check` | Check that all files are formatted.           |
-| `npm test`             | Run the unit tests once.                      |
-| `npm run test:watch`   | Run the unit tests again on each file change. |
+| Script                 | What it does                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `npm run dev`          | Start the app in development mode.                                                     |
+| `npm run build`        | Build all packages.                                                                    |
+| `npm run typecheck`    | Check TypeScript types in all packages.                                                |
+| `npm run lint`         | Check the code with ESLint.                                                            |
+| `npm run format`       | Format all files with Prettier.                                                        |
+| `npm run format:check` | Check that all files are formatted.                                                    |
+| `npm test`             | Run the unit tests once.                                                               |
+| `npm run test:watch`   | Run the unit tests again on each file change.                                          |
+| `npm run test:e2e`     | Build the app, then run the end-to-end tests: Playwright starts ConsolX and drives it. |
 
 ## Project layout
 
@@ -80,7 +81,9 @@ apps/desktop/           Electron application (GPLv3)
   src/preload/          preload script: the only bridge between the UI and the system
   src/renderer/         user interface (React)
   src/shared/           types shared by the processes
+  e2e/                  end-to-end tests (Playwright)
 packages/plugin-api/    public types for plugins (MIT)
+docs/user/              user guide
 ```
 
 ## Code guidelines
