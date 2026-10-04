@@ -10,16 +10,14 @@ import { IpcChannel } from '../shared/ipc-channels'
 export function setUpFrame(window: BrowserWindow, wantsBlur: () => boolean): void {
   if (process.platform === 'win32') {
     window.once('show', () => {
-      // When the window opens translucent, the blur is set around this first frame
-      // change, as setBlur does around a refresh of the frame.
-      const blur = wantsBlur()
-      if (blur) setAccent(window, true)
+      // The blur is set around this first frame change even when the window opens
+      // opaque, then turned off if it is not wanted: a blur turned on later only shows
+      // in a window where it was first set this way. An opaque page hides it meanwhile.
+      setAccent(window, true)
       restoreFrameStyles(window)
-      if (blur) {
-        setTimeout(() => {
-          if (!window.isDestroyed()) setAccent(window, true)
-        }, 100)
-      }
+      setTimeout(() => {
+        if (!window.isDestroyed()) setAccent(window, wantsBlur())
+      }, 100)
     })
 
     // Electron ignores the system maximize command on transparent windows, which a
