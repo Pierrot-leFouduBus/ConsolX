@@ -3,7 +3,9 @@
 What changes in each version of ConsolX. The release workflow publishes the section of a version
 as the notes of its GitHub release.
 
-## [Unreleased]
+## [1.1.0] - 2026-10-05
+
+ConsolX takes your colors: a light theme, your own CSS, and a translucent window.
 
 ### Added
 
@@ -75,6 +77,7 @@ one window, in tabs and split panes. The
 - The first installable version: a window with a PowerShell terminal, an installer for Windows,
   and automatic updates from GitHub.
 
+[1.1.0]: https://github.com/Pierrot-leFouduBus/ConsolX/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Pierrot-leFouduBus/ConsolX/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/Pierrot-leFouduBus/ConsolX/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/Pierrot-leFouduBus/ConsolX/compare/v0.1.1...v0.1.2
