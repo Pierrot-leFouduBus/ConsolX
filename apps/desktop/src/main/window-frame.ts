@@ -1,22 +1,21 @@
 // The window has no system frame: the UI draws the title bar and the window buttons.
 // This module gives such a window what the system frame would: snapping, shadow and a
 // real maximize on Windows, and the maximized state for the UI. It also blurs what is
-// behind the translucent parts of the window.
+// behind the window, which shows through its translucent parts.
 import type { BrowserWindow } from 'electron'
 import koffi from 'koffi'
 import { IpcChannel } from '../shared/ipc-channels'
 
-// wantsBlur tells whether a part of the window is translucent, with the blur behind.
-export function setUpFrame(window: BrowserWindow, wantsBlur: () => boolean): void {
+export function setUpFrame(window: BrowserWindow): void {
   if (process.platform === 'win32') {
     window.once('show', () => {
-      // The blur is set around this first frame change even when the window opens
-      // opaque, then turned off if it is not wanted: a blur turned on later only shows
-      // in a window where it was first set this way. An opaque page hides it meanwhile.
-      setAccent(window, true)
+      // The blur is set around this first frame change, then left on: an opaque page
+      // hides it, and the opacity settings only change the page. Windows 10 does not
+      // reliably show a blur turned on, or back on, later (see setBlur).
+      setBlur(window)
       restoreFrameStyles(window)
       setTimeout(() => {
-        if (!window.isDestroyed()) setAccent(window, wantsBlur())
+        if (!window.isDestroyed()) setBlur(window)
       }, 100)
     })
 
@@ -49,30 +48,20 @@ export function toggleMaximize(window: BrowserWindow): void {
   }
 }
 
-// Blurs what is behind the window, or stops. Windows 10 has no documented way to do it:
-// SetWindowCompositionAttribute is undocumented. See docs/prototypes/transparency.md.
-// With the frame styles back, the blur only shows when it is set, then the frame
-// refreshed, then the blur set again once Windows has handled the refresh (found by
-// trying each way on Windows 10).
-export function setBlur(window: BrowserWindow, blur: boolean): void {
-  if (process.platform !== 'win32') return
-  setAccent(window, blur)
-  if (!blur) return
-  refreshFrame(window)
-  setTimeout(() => {
-    if (!window.isDestroyed()) setAccent(window, true)
-  }, 100)
-}
-
-function setAccent(window: BrowserWindow, blur: boolean): void {
+// Blurs what is behind the window. Windows 10 has no documented way to do it:
+// SetWindowCompositionAttribute is undocumented. With the frame styles back, the blur
+// only shows when it is set before a change of the frame styles and again after it;
+// turned off and on again later, it waits for the window to be resized. Found by trying
+// each way on Windows 10: see docs/prototypes/transparency.md.
+function setBlur(window: BrowserWindow): void {
   user32 ??= loadUser32()
   const policy = koffi.alloc(user32.AccentPolicy, 1)
   try {
     koffi.encode(policy, user32.AccentPolicy, {
-      AccentState: blur ? ACCENT_ENABLE_BLURBEHIND : ACCENT_DISABLED,
+      AccentState: ACCENT_ENABLE_BLURBEHIND,
       // The blur only shows with the tint flag, so it is set with a clear tint: the UI
       // paints its own colors over the blur.
-      AccentFlags: blur ? ACCENT_FLAG_TINT : 0,
+      AccentFlags: ACCENT_FLAG_TINT,
       GradientColor: 0,
       AnimationId: 0
     })
@@ -103,7 +92,6 @@ const SWP_REFRESH_FRAME = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020
 
 // Effects of SetWindowCompositionAttribute (ACCENT_POLICY, undocumented).
 const WCA_ACCENT_POLICY = 19
-const ACCENT_DISABLED = 0
 const ACCENT_ENABLE_BLURBEHIND = 3
 // Use GradientColor as a tint over the effect.
 const ACCENT_FLAG_TINT = 2
@@ -152,12 +140,7 @@ function restoreFrameStyles(window: BrowserWindow): void {
   const style = Number(user32.getWindowLongPtr(hwnd, GWL_STYLE))
   user32.setWindowLongPtr(hwnd, GWL_STYLE, BigInt(style | WS_THICKFRAME | WS_CAPTION))
   // Windows applies new frame styles only after this call.
-  refreshFrame(window)
-}
-
-function refreshFrame(window: BrowserWindow): void {
-  user32 ??= loadUser32()
-  user32.setWindowPos(handleOf(window), 0n, 0, 0, 0, 0, SWP_REFRESH_FRAME)
+  user32.setWindowPos(hwnd, 0n, 0, 0, 0, 0, SWP_REFRESH_FRAME)
 }
 
 function showWindow(window: BrowserWindow, command: number): void {

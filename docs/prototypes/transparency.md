@@ -104,7 +104,7 @@ window stays dark. Tried side by side on the same machine:
 So ConsolX always blurs what is behind its translucent parts: a sharp see-through window
 would need to drop the frame styles, and with them snapping and the shadow.
 
-A blur turned on later, in a window already open, only shows when it was first set this
-way around the first frame change: otherwise it waits for the window to be resized. So
-ConsolX always sets the blur around that first change when the window opens, then turns
-it off at once if the window is opaque (the opaque page hides it meanwhile).
+A blur turned on later, in a window already open, or turned off and on again, does not
+show reliably: the window stays black behind its translucent parts until it is resized.
+So ConsolX sets the blur around the first frame change when the window opens, and never
+turns it off: an opaque page hides it, and the opacity settings only change the page.
